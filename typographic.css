@@ -1,0 +1,818 @@
+/** Font face imports ------------------------------------------------------------------------- **/
+/* ! Chromium on Windows is bugged. Locally installed variable font files do not work correctly. */
+/* todo: @font-face rules for base64-encoded variable fonts. Bypass the bug, works offline, etc. */
+
+/** Media Recommendations --------------------------------------------------------------------- **/
+
+/** Base CSS variables ------------------------------------------------------------------------ **/
+
+:root {
+  /** Hacking CSS a bit: **/
+  /* number-to-int: calc(25.4 * var(--int) / var(--int)); */
+  --int: 4.9406564584124654e-324;
+
+  /** Document dimensions (ideal/target/ranges) **/
+
+  --typo-ideal-line: 68ch;
+  --typo-ideal-minimum: 36ch;
+  --typo-ideal-maximum: 100ch;
+
+  /* Markdown documents - single column, highly vertical - tend to sprawl vertically, so: */
+  --typo-extra-line: 5ch;
+
+  /* And the typical character isn't 100%-width but a bit narrower: */
+  --typo-ch-correction: 0.98;
+
+  --typo-line-width: calc((var(--typo-ideal-line) + var(--typo-extra-line)) * var(--typo-ch-correction));
+  --typo-line-min-width: calc((var(--typo-ideal-minimum) + var(--typo-extra-line) / 2) * var(--typo-ch-correction));
+  --typo-line-max-width: calc((var(--typo-ideal-maximum) + var(--typo-extra-line) / 2) * var(--typo-ch-correction));
+
+  /** Grid dimensions and layout **/
+
+  --typo-title-font: Lora, Bitter, serif;
+  --typo-h-font: "Lato", "Eurostile LT Std", Ebrima, Lora, Bitter, serif;
+
+  /* These are some typical, nice grid values. */
+  /* The grid is a half-baseline grid, so we need the full rows to be even counts. */
+  --grid-row-full: 26px;
+  --grid-row-half: 13px;
+  --int-grid-full: 26;
+  --int-grid-half: 13;
+
+  /* I intended all headings to use padding for spacing, but it isn't required. */
+  /* Set only one to 1, the other to 0: */
+  --typo-h-padded: 1;
+  --typo-h-margin: 0;
+
+  /* In units of full grid rows (so halves are allowed): */
+  --typo-li-rows: 1;
+  --typo-table-rows: 1;
+  --typo-table-header-rows: 1.5;
+
+  /** Longform layout **/
+
+  /* I'd been using "monotony breaks" in formatting but they wouldn't be popular. Should remove. */
+  /* When you choose the strategy of a loose, more readable layout and body, you don't need
+      to have big pauses put between sections, or solid lines e.g. overlined headings.           */
+
+  /* --monotony-header-border: --monotony-header-border-top; */
+  --monotony-p-indent: 1;
+  --monotony-p-before: 0;
+  --monotony-p-indent-first: 0;
+  --monotony-p-before-first: 0;
+}
+
+/** Document body variables ------------------------------------------------------------------- **/
+
+body>div.app-container.app-container {
+
+  /** Body text **/
+
+  /* Use one of the typo-font-*.css files for your body text. */
+
+  /** Recalculate the grid based on the body font **/
+
+  --grid-row-full: calc(var(--typo-body-ex) / 0.28 / 2 * var(--int) / var(--int) * 2);
+  --grid-row-half: calc(var(--grid-row-full) / 2 * var(--int) / var(--int));
+  --int-grid-full: calc(var(--int-ex) / 0.28 * var(--int) / var(--int));
+  --int-grid-half: calc(var(--int-grid-full) / 2 * var(--int) / var(--int));
+
+  /* Ratio of line height to the em, unitless: */
+  --grid-row-ratio: calc(var(--int-ex) / 0.28 / var(--int-body));
+
+  /* Grid columns */
+  /* Obsidian notes get horizontally resized constantly. It's not worth changing the col width. */
+  /* So instead, we have this sort of, useless, not-actually-a-grid column. It's kind of sad.   */
+  --grid-col-half: calc((var(--grid-row-full) + var(--typo-body-ex) - 1px) * var(--int) / var(--int));
+  --grid-col-full: calc(var(--grid-col-half) * 2);
+  /* Use these variables to exaggerate proportions or approximate ratios along the grid. */
+  --int-col-half: calc(var(--int-ex) / 0.28 + var(--int-ex) - 1);
+  --int-col-full: calc(var(--int-col-half) * 2);
+
+  /* Ratio of columns to lines, unitless: */
+  --grid-col-ratio: calc(var(--int-col-full) / var(--int-grid-full));
+
+  /** Overriding app.css */
+
+  --file-line-width: var(--typo-line-width, --typo-ideal-line, 64ch);
+  --line-width: var(--file-line-width);
+  --file-margins: 4ch;
+  --font-text: var(--typo-body-font);
+  --font-smallest: calc(var(--typo-compact-em) - 2px);
+  --font-smaller: calc(var(--typo-compact-em) - 1px);
+  --font-small: var(--typo-compact-em);
+  --font-text-size: var(--typo-body-em);
+  --footnote-size: var(--font-small);
+  --inline-title-size: calc(var(--typo-title-em) * var(--int) / var(--int));
+  --inline-title-line-height: 1;
+  --inline-title-weight: 500;
+  --inline-title-margin-bottom: var(--grid-row-full);
+  --p-spacing: 0;
+  --inline-title-font: var(--typo-title-font);
+  --h1-font: var(--typo-h-font);
+  --h2-font: var(--typo-h-font);
+  --h3-font: var(--typo-h-font);
+  --h4-font: var(--typo-h-font);
+  --h5-font: var(--typo-h-font);
+  --h6-font: var(--typo-h-font);
+  --heading-spacing: 0;
+  --h1-line-height: 1;
+  --h2-line-height: 1;
+  --h3-line-height: 1;
+  --h4-line-height: 1;
+  --h5-line-height: 1;
+  --h6-line-height: 1;
+  --h1-weight: 600;
+  --h2-weight: 600;
+  --h3-weight: 600;
+  --h4-weight: 600;
+  --h5-weight: 600;
+  --h6-weight: 600;
+  --h1-size: calc(var(--typo-h1-em) * var(--int) / var(--int));
+  --h2-size: calc(var(--typo-h2-em) * var(--int) / var(--int));
+  --h3-size: calc(var(--typo-h3-em) * var(--int) / var(--int));
+  --h4-size: calc(var(--typo-h4-em) * var(--int) / var(--int));
+  --h5-size: calc(var(--typo-h5-em) * var(--int) / var(--int));
+  --h6-size: calc(var(--typo-h6-em) * var(--int) / var(--int));
+  --line-height-normal: var(--grid-row-full);
+  --line-height-tight: calc(var(--grid-row-full) - 2px);
+  --list-indent-item: 1ch;
+  --list-indent: calc(var(--grid-col-half) - var(--list-indent-item));
+  --list-spacing: 0;
+  --radius-s: calc(var(--typo-body-ex) / 2);
+  --radius-m: var(--typo-body-ex);
+  --radius-l: var(--typo-body-ascender);
+  --radius-xl: var(--typo-body-em);
+  --tag-size: inherit;
+  --tag-border-width: 0px;
+  --tag-padding-x: 0;
+  --tag-padding-y: 0;
+  --tag-radius: 0px;
+  /* Line weights should be more consistent across the doc */
+  /* But how to change this so themes can override easily? */
+  --blockquote-border-thickness: 1px;
+
+  /** Half-grid, baseline-aligned */
+  /* List bullets are placed on a full pixel even if half the indent is fractional */
+  /* So we produce a half which is rounded down and compensate in the remainder. */
+  --list-indent-half: calc((var(--list-indent) / 2 - 0.5px) * var(--int) / var(--int));
+
+  /** Text elements on grid **/
+  /* Use either indentation or space before, but not both. */
+  --text-indent: 0;
+  --text-before: var(--grid-row-half);
+  --text-indent-first: 0;
+  --text-before-first: var(--grid-row-half);
+
+  /** Large elements on grid **/
+  --typo-title-em: calc(2.25 * var(--typo-body-em) * var(--int) / var(--int));
+  --typo-title-subtitle-rows: 1.5;
+
+  --typo-h1-em: calc(1.25 * var(--typo-body-em));
+  --typo-h2-em: calc(1.2 * var(--typo-body-em));
+  --typo-h3-em: calc(1.15 * var(--typo-body-em));
+  --typo-h4-em: calc(1.1 * var(--typo-body-em));
+  --typo-h5-em: calc(1.05 * var(--typo-body-em));
+  --typo-h6-em: calc(1 * var(--typo-body-em));
+  --typo-h-subtitle-rows: 1;
+  /* Uses increments of half-grids: */
+  --typo-h1-rows: 8;
+  --typo-h2-rows: 5;
+  --typo-h3-rows: 4;
+  --typo-h4-rows: 3;
+  --typo-h5-rows: 2;
+  --typo-h6-rows: 1;
+  /* Used to make a calculation look less bad later. */
+  --h1-leading-as-px: calc(var(--typo-h1-rows) * 1px);
+  --h2-leading-as-px: calc(var(--typo-h2-rows) * 1px);
+  --h3-leading-as-px: calc(var(--typo-h3-rows) * 1px);
+  --h4-leading-as-px: calc(var(--typo-h4-rows) * 1px);
+  --h5-leading-as-px: calc(var(--typo-h5-rows) * 1px);
+  --h6-leading-as-px: calc(var(--typo-h6-rows) * 1px);
+  /* not an exact science: */
+  --h1-baseline-round: -1.6px;
+  --h2-baseline-round: -1.6px;
+  --h3-baseline-round: -1.6px;
+  --h4-baseline-round: -1.6px;
+  --h5-baseline-round: -1.6px;
+  --h6-baseline-round: -1.6px;
+
+  /* Move the table header's text baseline to the nearest quarter-baseline interval:
+      pad_total = header_rows * grid - 2 * border - line_height = pad_top + pad_bottom
+      pad_top = (header_rows * grid - line_height) / 2 - border - font_baseline_offset
+      pad_bottom = pad_total - pad_top
+      This produces a noticeable pad_top > pad_bottom; I fudge 1px in the below to even things up.
+  */
+  --typo-table-header-padding-top: calc((((var(--typo-table-header-rows) - 1) * var(--grid-row-full) - 2 * var(--table-border-width) - var(--typo-body-base)) / 2) * var(--int) / var(--int) - 1px);
+  --typo-table-header-padding-bot: calc((var(--typo-table-header-rows) - 1) * var(--grid-row-full) - 2 * var(--table-border-width) - var(--typo-table-header-padding-top));
+}
+
+/* We want to extinguish all the --typo variables by this point. Use the common properties. */
+.markdown-reading-view {
+  --font-text-override: var(--typo-body-font);
+  --font-text: var(--font-text-override), var(--font-text-theme),
+    var(--font-interface);
+  --font-text-size: var(--typo-body-em);
+  --line-height-normal: var(--grid-row-full);
+  --table-line-height: var(--line-height-normal);
+}
+
+/** Longform variables ------------------------------------------------------------------------ **/
+
+.longform.markdown-preview-view.markdown-rendered {
+  --text-indent: var(--monotony-p-indent);
+  --text-before: var(--monotony-p-before);
+  --text-indent-first: var(--monotony-p-indent-first);
+  --text-before-first: var(--monotony-p-before-first);
+}
+
+/** Document styles -------------------------------------------------------------------------- **/
+
+/* Since our documents are dimensioned based on the body font, we set and then unset it. */
+/* This gets into the UI styles, but what can you do. Otherwise, we get weird overlaps.  */
+
+.mod-root.workspace-split.mod-vertical {
+  overflow-x: auto;
+}
+
+.mod-root.workspace-split .workspace-tabs {
+  font-family: var(--typo-body-font);
+  font-size: var(--typo-body-em);
+  min-width: calc((2 * var(--file-margins) + var(--typo-line-min-width) + 1px) * var(--int) / var(--int));
+  width: unset !important;
+
+  & .workspace-tab-header-container {
+    font-family: var(--font-interface);
+    font-size: var(--font-ui-medium);
+  }
+}
+
+/* This in turn breaks the sidebars, which we fix. */
+
+.workspace-split.mod-horizontal.mod-left-split {
+  max-width: min(30vw, 100vw - (2 * var(--file-margins) + var(--typo-line-min-width)));
+}
+
+.workspace-split.mod-horizontal.mod-right-split {
+  max-width: fit-content;
+}
+
+/* Finally, we can style our actual notes again. */
+
+.markdown-preview-sizer {
+  max-width: var(--typo-line-width);
+  min-width: var(--typo-line-min-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/** Display element styles ------------------------------------------------------------------- **/
+
+/** Note titles. */
+
+.markdown-rendered .inline-title {
+  letter-spacing: 0.5px;
+  text-align: center;
+
+  --round-up-as-px: 0.5px;
+  --shrink-as-px: 0.3334px;
+  --line-to-grid: calc(var(--inline-title-line-height) * 1em / var(--int-grid-half) + var(--round-up-as-px) - var(--shrink-as-px));
+  line-height: calc(var(--line-to-grid) * var(--int) / var(--int) * var(--int-grid-half));
+}
+
+/* We can't do fancier container queries than this. Yet. */
+.markdown-rendered .mod-header {
+  container-type: inline-size;
+  container-name: mod-header;
+}
+
+@container mod-header (max-width: 400px) {
+  .inline-title {
+    --inline-title-size: calc(1.5 * var(--typo-body-em) * var(--int) / var(--int));
+  }
+
+  .metadata-content {
+    --metadata-font-size: var(--font-smaller);
+  }
+}
+
+/** Headings. */
+
+.markdown-rendered {
+  & :has(> h1) {
+    --h-size: var(--h1-size);
+    --h-base: var(--h1-baseline-round);
+    --h-lead: var(--h1-leading-as-px);
+    --h-rows: var(--typo-h1-rows);
+  }
+
+  & :has(> h2) {
+    --h-size: var(--h2-size);
+    --h-base: var(--h2-baseline-round);
+    --h-lead: var(--h2-leading-as-px);
+    --h-rows: var(--typo-h2-rows);
+  }
+
+  & :has(> h3) {
+    --h-size: var(--h3-size);
+    --h-base: var(--h3-baseline-round);
+    --h-lead: var(--h3-leading-as-px);
+    --h-rows: var(--typo-h3-rows);
+  }
+
+  & :has(> h4) {
+    --h-size: var(--h4-size);
+    --h-base: var(--h4-baseline-round);
+    --h-lead: var(--h4-leading-as-px);
+    --h-rows: var(--typo-h4-rows);
+  }
+
+  & :has(> h5) {
+    --h-size: var(--h5-size);
+    --h-base: var(--h5-baseline-round);
+    --h-lead: var(--h5-leading-as-px);
+    --h-rows: var(--typo-h5-rows);
+  }
+
+  & :has(> h6) {
+    --h-size: var(--h6-size);
+    --h-base: var(--h6-baseline-round);
+    --h-lead: var(--h6-leading-as-px);
+    --h-rows: var(--typo-h6-rows);
+  }
+}
+
+.markdown-preview-section>div> :is(h1, h2, h3, h4, h5, h6) {
+  font-size: var(--h-size);
+
+  --baseline-guess: calc(1ex / var(--int-ex) * var(--int-base) * (1 + tan(var(--h-rows) / var(--typo-h1-rows))));
+  --total-height: calc((var(--h-size) / var(--int-grid-half) + var(--h-lead)) * var(--int) / var(--int) * var(--int-grid-half));
+  --space-height: calc(var(--total-height) - var(--h-size));
+  --space-bottom: max(0px,
+      (var(--space-height) / 2 + var(--baseline-guess) + var(--h-base)) * var(--int-grid-half) / var(--int-grid-half) * var(--int) / var(--int));
+  --space-top: calc(var(--space-height) - var(--space-bottom));
+
+  /* New Obsidian variables mucking things up, per usual. */
+  --heading-spacing: calc(var(--typo-h-margin) * var(--space-top));
+
+  /* Apply our calculated values. */
+  margin-top: calc(var(--typo-h-margin) * var(--space-top));
+  margin-bottom: calc(var(--typo-h-margin) * var(--space-bottom));
+  padding-top: calc(var(--typo-h-padded) * var(--space-top));
+  padding-bottom: calc(var(--typo-h-padded) * var(--space-bottom));
+
+  /* You can use empty headings to end a fold region. Occasionally useful. */
+  &:is([data-heading=""], [data-heading^="%%"]) {
+    display: none;
+  }
+
+  &>.heading-collapse-indicator:hover>.svg-icon {
+    color: var(--text-accent);
+  }
+}
+
+/** Adjacency: Displays with displays **/
+
+/** Consecutive headings. */
+/* Headings cut a grid-row between themselves and smaller, adjacent headings. */
+/* This only matters if we're using -h-padded instead of -h-margin. */
+/* The margin-spaced headings already collapse together very neatly. */
+/* A bit arbitrarily, this sets a minimum point where no spacing is cut. */
+
+.markdown-preview-section>div:has(+div>h2:not([data-heading=""], [data-heading^="%%"]))>h1,
+.markdown-preview-section>div:has(+div>h3:not([data-heading=""], [data-heading^="%%"]))>:is(h1, h2),
+.markdown-preview-section>div:has(+div>h4:not([data-heading=""], [data-heading^="%%"]))>:is(h1, h2, h3),
+.markdown-preview-section>div:has(+div>h5:not([data-heading=""], [data-heading^="%%"]))>:is(h1, h2, h3, h4),
+.markdown-preview-section>div:has(+div>h6:not([data-heading=""], [data-heading^="%%"]))>:is(h1, h2, h3, h4, h5) {
+  padding-bottom: calc(var(--typo-h-padded) * max(0px, var(--space-bottom) - var(--grid-row-full)));
+}
+
+/** Adjacency: Displays with content **/
+
+/* Following a title */
+
+/* .meta-description + h1 */
+.markdown-rendered div:has(> p.meta-description)+div:has(h1) {
+  margin-top: calc(-1 * var(--grid-row-half));
+}
+
+/* Following a header */
+
+/* .subtitle */
+.markdown-rendered div:has(+ div > p.subtitle)> :is(h1, h2, h3, h4, h5, h6) {
+  padding-bottom: 0px;
+}
+
+.markdown-rendered :has(> h1)+div>p.subtitle {
+  --h-size: var(--h1-size);
+  --h-lead: var(--h1-leading-as-px);
+  --h-base: var(--h1-baseline-round);
+  --h-rows: var(--typo-h1-rows);
+}
+
+.markdown-rendered :has(> h2)+div>p.subtitle {
+  --h-size: var(--h2-size);
+  --h-lead: var(--h2-leading-as-px);
+  --h-base: var(--h2-baseline-round);
+  --h-rows: var(--typo-h2-rows);
+}
+
+.markdown-rendered :has(> h3)+div>p.subtitle {
+  --h-size: var(--h3-size);
+  --h-lead: var(--h3-leading-as-px);
+  --h-base: var(--h3-baseline-round);
+  --h-rows: var(--typo-h3-rows);
+}
+
+.markdown-rendered :has(> h4)+div>p.subtitle {
+  --h-size: var(--h4-size);
+  --h-lead: var(--h4-leading-as-px);
+  --h-base: var(--h4-baseline-round);
+  --h-rows: var(--typo-h4-rows);
+}
+
+.markdown-rendered :has(> h5)+div>p.subtitle {
+  --h-size: var(--h5-size);
+  --h-lead: var(--h5-leading-as-px);
+  --h-base: var(--h5-baseline-round);
+  --h-rows: var(--typo-h5-rows);
+}
+
+.markdown-rendered :has(> h6)+div>p.subtitle {
+  --h-size: var(--h6-size);
+  --h-lead: var(--h6-leading-as-px);
+  --h-base: var(--h6-baseline-round);
+  --h-rows: var(--typo-h6-rows);
+}
+
+.markdown-rendered div:has(> h1, > h2, > h3, > h4, > h5, > h6)+div:has(> p) {
+  &>p.subtitle.subtitle {
+    color: var(--text-muted);
+    font-size: var(--typo-compact-em);
+    text-align: left;
+    font-style: italic;
+    text-indent: 0;
+
+    /** Completely recompute the heading values: **/
+    --baseline-guess: calc(1ex / var(--int-ex) * var(--int-base) * (1 + tan(var(--h-rows) / var(--typo-h1-rows))));
+    --total-height: calc((var(--h-size) / var(--int-grid-half) + var(--h-lead)) * var(--int) / var(--int) * var(--int-grid-half));
+    --space-height: calc(var(--total-height) - var(--h-size));
+    --space-bottom: calc((var(--space-height) / 2 + var(--baseline-guess) + var(--h-base)) * var(--int-grid-half) / var(--int-grid-half) * var(--int) / var(--int));
+
+    /* Insert a new set of margins around the compact subtitle: */
+    /* We require that: space-bottom =  2 * _mm + compact-em - rows * row-full */
+    /* ..which becomes: _mm = (rows * row-full + space-bottom - compact-em) / 2 */
+    /* And we want the subtitle to align more closely with the heading than the following content. */
+    --space-sub: calc(var(--typo-h-subtitle-rows) * var(--grid-row-full) + var(--space-bottom) - var(--typo-compact-em));
+    --space-sub-top: calc((var(--space-sub) / 2 + var(--typo-compact-base)) * var(--int) / var(--int));
+    --space-sub-bot: calc((var(--space-sub) / 2 - var(--typo-compact-base)) * var(--int) / var(--int));
+
+    /* A hilarious amount of work for: */
+    margin-top: var(--space-sub-top);
+    margin-bottom: var(--space-sub-bot);
+
+    /* Finally, set up the first para after a heading + subtitle: */
+    &+div>p {
+      text-indent: var(--text-indent-first);
+      margin-top: var(--text-before-first);
+    }
+  }
+}
+
+/** Body text styles -------------------------------------------------------------------------- **/
+
+/** Regular typographic elements **/
+
+/* Everything else is set in app.css via custom properties. */
+.markdown-rendered p:is(p) {
+  margin: var(--grid-row-half) 0;
+  text-indent: var(--text-indent);
+  font-weight: var(--typo-body-weight);
+}
+
+/* This is usually fine. */
+.markdown-rendered p sub,
+.markdown-rendered p sup {
+  line-height: 0;
+}
+
+/* Line breaks are half-row in height, for tuning the layout in smaller increments. */
+.markdown-rendered br {
+  height: var(--grid-row-half);
+  font-size: var(--grid-row-half);
+  line-height: var(--grid-row-half);
+  width: 100%;
+}
+
+/** Larger element styles --------------------------------------------------------------------- **/
+
+/** Lists **/
+
+.markdown-rendered {
+
+  /** All list types **/
+  &>div :is(ol, ul, dl) {
+    padding-block: 0;
+  }
+
+  /** All list items **/
+  & li,
+  & dd {
+    line-height: var(--grid-row-full);
+    padding-left: calc(var(--list-indent-item) * var(--int) / var(--int));
+    font-weight: var(--typo-body-weight);
+    margin-block-end: 0;
+
+    &::marker,
+    & .list-bullet::before,
+    & .list-bullet::after {
+      color: var(--text-normal);
+      background-color: var(--text-normal);
+    }
+  }
+
+  /** Ordered lists **/
+  & ol {
+    margin: var(--grid-row-half) 0;
+
+    & li {
+      & .list-collapse-indicator {
+        margin-left: calc(-2ch - var(--list-indent));
+        padding: 0;
+      }
+
+      &> :is(ol, ul)::before {
+        left: calc(-1 * var(--list-indent) + var(--list-indent-item) + var(--indentation-guide-width)) !important;
+      }
+    }
+  }
+
+  & ol>li>ol {
+    list-style-type: lower-alpha;
+
+    &>li>ol {
+      list-style-type: lower-roman;
+
+      &>li>ol {
+        list-style-type: upper-alpha;
+
+        &>li>ol {
+          list-style-type: upper-roman;
+        }
+      }
+    }
+  }
+
+  /** Unordered lists **/
+  & ul {
+    --l-pad: calc((var(--list-indent-half) + var(--list-indent-item) - var(--list-bullet-size) / 2 + 0.5px) * var(--int) / var(--int));
+
+    margin: var(--grid-row-half) 0;
+    padding-left: var(--l-pad);
+
+    & li {
+      /* the indent-half can be 1px different, so: */
+      padding-left: calc(var(--list-indent) - var(--list-indent-half));
+
+      & .list-collapse-indicator {
+        margin-left: calc(-1 * var(--list-indent));
+        padding: 0;
+      }
+
+      &> :is(ol, ul)::before {
+        left: calc(-1 * var(--list-indent-item) - var(--list-indent) / 2 + var(--list-bullet-size) / 2 + var(--indentation-guide-width)) !important;
+      }
+    }
+  }
+
+  & ul.has-list-bullet>li>.list-bullet {
+    /* stop-using-em-for-horizontal-units challenge, difficulty level: impossible */
+    margin-left: -2ch;
+  }
+
+  & :is(ol, ul)>li> :is(ol, ul) {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
+/** Nested lists and indentation guides **/
+
+/* margin-top: calc((var(--grid-row-full) / 2 - var(--typo-body-mean) - var(--typo-body-ascender-offset)) * var(--int) / var(--int));
+margin-bottom: calc((var(--grid-row-full) / 2 + var(--typo-body-base) - var(--typo-body-descender-offset)) * var(--int) / var(--int)); */
+
+/** Elements within lists **/
+
+/* Elements with a half-grid margin add the margin to the whole list: */
+.markdown-rendered :is(ol, ul):has(>li>*+:not(p:only-of-type,
+    dl,
+    ol,
+    ul,
+    div,
+    span,
+    a,
+    em,
+    i,
+    strong,
+    b,
+    aside,
+    mark,
+    cite,
+    sub,
+    sup,
+    abbr,
+    area,
+    br,
+    button,
+    code,
+    pre,
+    del,
+    dfn,
+    ins,
+    kbd))>li {
+  margin-bottom: var(--grid-row-half);
+}
+
+/* A more accurate selector than this might be too ridiculous */
+.markdown-rendered :is(ol, ul)>li>p:has(+ :is(ol, ul):not(:last-child)) {
+  margin-bottom: var(--grid-row-half);
+}
+
+/** Tables **/
+
+/** Blockquotes **/
+/* Tricky. Set up normal blockquotes on the half-grid as well as you can. */
+/* This requires subtracting the border out of the margin and padding. */
+/* Using margin to compensate can lead to incorrect grid spacing, actually. */
+/* But it's better than taking e.g. all of a 4px border out of the padding. */
+.markdown-rendered blockquote {
+  --border-half: calc(var(--blockquote-border-thickness) / 2 * var(--int) / var(--int));
+
+  margin: calc(var(--grid-row-half) - var(--border-half)) 0;
+  padding: calc(var(--grid-row-half) - var(--blockquote-border-thickness) + var(--border-half)) 1.75ch;
+  border: var(--blockquote-border-thickness) solid var(--blockquote-border-color);
+  border-radius: 0px;
+}
+
+.markdown-rendered blockquote p {
+  line-height: var(--grid-row-full);
+}
+
+/** Adjacent elements **/
+
+p+p,
+.markdown-rendered div:has(> p)+div>p,
+.markdown-rendered div:has(> p)+ :empty+div>p {
+  margin-top: var(--text-before);
+  text-indent: var(--text-indent);
+}
+
+/** Embed styles ------------------------------------------------------------------------------ **/
+
+.markdown-preview-section>div>*:has(> span.internal-embed) {
+  --file-margins: 0px;
+
+  margin: 0;
+  padding: 0;
+
+  & .markdown-embed-title {
+    display: none;
+  }
+
+  & .markdown-embed-link {
+    display: none;
+  }
+
+  /* I want naked embeds, almost always, so: */
+
+  & span.markdown-embed,
+  & .markdown-preview-view {
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+  }
+
+  & .markdown-preview-section {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+    min-height: 100% !important;
+
+    /* Remove inline titles. */
+    &>.mod-header {
+      display: none;
+    }
+
+    /* Okay but like, div>p is *always* p:first-child */
+    & p:first-child {
+      margin-top: var(--grid-row-half);
+    }
+
+    & section.footnotes>ol {
+      background-color: var(--background-secondary-alt);
+      padding-block: var(--grid-row-half);
+      border-radius: var(--grid-row-half);
+
+      &>li:first-of-type {
+        margin-top: 0;
+      }
+
+      &>li:last-of-type {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+/** Footnote styles --------------------------------------------------------------------------- **/
+
+.markdown-rendered section.footnotes {
+  margin-top: calc(2 * var(--grid-row-full));
+
+  &>ol {
+    padding-left: calc(var(--list-indent) - var(--list-indent-item));
+
+    &>li {
+      padding-left: var(--list-indent-item);
+      line-height: var(--grid-row-full);
+      margin: var(--grid-row-full) 0;
+
+      &::marker {
+        color: var(--text-normal);
+      }
+    }
+  }
+
+  & code {
+    font-size: var(--font-smallest);
+    font-weight: 500;
+  }
+}
+
+/* Footnotes ending in blockquotes push down their jump link; move it back up */
+.markdown-preview-view ol li[data-footnote-id]>blockquote>p:nth-last-child(2) {
+  margin-block-end: 0;
+}
+
+/* This positions the jump link in the bottom-right corner of the blockquote */
+.markdown-preview-view ol li[data-footnote-id]>blockquote:nth-last-child(2)+a {
+  float: right;
+  clear: right;
+  top: calc(-2em - 1ex);
+  right: calc((1em + var(--list-indent-item)) / 2);
+}
+
+/** Callout classes --------------------------------------------------------------------------- **/
+
+.callout[data-callout="layout-columns"] {
+  --column-count: 2;
+
+  &>.callout-title {
+    display: none !important;
+  }
+
+  &>.callout-content {
+    columns: 2;
+    column-fill: balance;
+
+    &> :first-child {
+      margin-top: 0;
+    }
+  }
+}
+
+/** Element classes --------------------------------------------------------------------------- **/
+/* Not sure what else to call them. They are elements, with classes added. */
+
+/* Sometimes, you need to put words on a horizontal line break. This serves that purpose. */
+div:has(> p.inline-break) {
+  overflow: hidden;
+  margin: var(--grid-row-full) 0;
+
+  &>p.inline-break {
+    display: inline;
+    position: relative;
+
+    --inline-break-offset: 1000px;
+
+    &::after,
+    &::before {
+      content: "";
+      position: absolute;
+      margin-top: calc(var(--grid-row-half) + var(--typo-body-base) / 2 + 0.5px);
+      width: var(--inline-break-offset);
+      right: calc(-1ch - var(--inline-break-offset));
+      height: 0;
+      z-index: 1;
+      background-color: transparent;
+
+      /* border-bottom-width: var(--hr-thickness); */
+      border-bottom: 1px solid var(--text-normal, --hr-color);
+    }
+
+    &::before {
+      right: unset;
+      left: calc(-1ch - var(--inline-break-offset));
+    }
+  }
+}
