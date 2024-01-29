@@ -1,11 +1,12 @@
 /** -- typographic.css -------------------------------------------------------- by -- @efrec -- **/
+/** -- Licensed under the MIT/X11 License (http://opensource.org/licenses/MIT) -------- 2024 -- **/
 
 /*
-This is the absurd undertaking to round everything to an exact pixel on a screen -- more or less.
-What it actually does is takes a set of font measurements, set in another file, and uses them to
-dimension an invisible grid layout. The grid isn't materialized in any way -- there aren't any
-changes to `display` attributes. Instead, everything is dimensioned to the grid and we trust the
-browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--int) / var(--int)`.
+ This is the absurd undertaking to round everything to an exact pixel on a screen -- more or less.
+ What it actually does is takes a set of font measurements (set in another file) and uses them to
+ dimension an invisible grid layout. The grid isn't materialized in any way -- there aren't any
+ changes to `display` attributes. Instead, everything is dimensioned to the grid and we trust the
+ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--int) / var(--int)`.
 */
 
 /** Font face imports ------------------------------------------------------------------------- **/
@@ -27,10 +28,11 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
   --typo-ideal-minimum:  36ch;
   --typo-ideal-maximum: 100ch;
 
-  /* Markdown documents - one column, highly vertical - tend to sprawl vertically, so: */
+  /* Markdown documents - one column, highly vertical layout - tend to sprawl vertically. */
+  /* We should compromise our ideal line length to fit more useful content on the screen: */
   --typo-extra-line:      5ch;
 
-  /* And the typical character isn't 100%-width but a bit narrower: */
+  /* The typical character isn't 100%-width but a bit narrower. Fonts can set their own *-ch-*s: */
   --typo-ch-correction:  0.98;
 
   --typo-line-width:     calc((var(--typo-ideal-line) + var(--typo-extra-line))        * var(--typo-ch-correction));
@@ -47,7 +49,8 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
   --int-grid-half: 13;
 
   /* I intended all headings to use padding for spacing, but it isn't required. */
-  /* Set only one to 1, the other to 0: */
+  /* Sometimes, margins are just better. I've gone to a painful length to make this configurable. */
+  /* Set only one of the following values to 1, and the other to 0: */
   --typo-h-padded: 1;
   --typo-h-margin: 0;
 
@@ -58,15 +61,36 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
 
   /** Longform layout **/
 
-  /* I'd been using "monotony breaks" in formatting but they wouldn't be popular. Should remove. */
-  /* When you choose the strategy of a loose, more readable layout and body, you don't need
-      to have big pauses put between sections, or solid lines e.g. overlined headings.           */
+  /* The default styles do a pretty good job of using vertical space efficiently. Except...  */
+  /* We don't always want that. Longform content, especially, needs more space to breathe.   */
+  /* Space becomes structure to the reader when there is more text than they can "navigate". */
+  /* First, we move --typo-extra-line up into the --file-margins to provide that structure.  */
+  /* Then, we need to provide well-structured text -- but we're only talking about CSS here. */
+  /* We can fake-in some intentionality with "monotony breaks" around headings, quotes, etc. */
+  /* These make use of standout elements, heavier line weights, and a ton of added spacing.  */
 
-  /* --monotony-header-border: --monotony-header-border-top; */
-  --monotony-p-indent:       1;
   --monotony-p-before:       0;
+  --monotony-p-indent:       1;
+  --monotony-p-before-first: 1;
   --monotony-p-indent-first: 0;
-  --monotony-p-before-first: 0;
+  --monotony-heavy-lines:    5px;
+  --monotony-medium-lines:   2px;
+  --monotony-under-position: under;
+  --monotony-line-ratio:     0.30;
+  /* in half-grid increments: */
+  --monotony-extra-space:    1;
+
+  /** Shortform layout **/
+
+  /* We can envision another extreme where paragraphs are never formed and all text is brief. */
+  /* In this mirror world, we might see things like single-bullet lists of (eg) just a link.  */
+  /* How would you handle layout where no greater structures ever emerge from smaller ones?   */
+  /* I'm putting this here just to start pondering it and because it rounds out  */
+
+  --choppy-p-before: 1;
+  --choppy-p-indent: 0;
+  --choppy-p-before-first: 1;
+  --choppy-p-indent-first: 0;
 }
 
 /** Document body variables ------------------------------------------------------------------- **/
@@ -303,9 +327,10 @@ body > div.app-container.app-container {
   --shrink-as-px:   0.3334px;
   --line-to-grid:   calc(1em * var(--inline-title-line-height) / var(--int-grid-half) + var(--round-up-as-px) - var(--shrink-as-px));
 
-  line-height: calc(var(--line-to-grid) * var(--int) / var(--int) * var(--int-grid-half));
+  line-height:    calc(var(--line-to-grid) * var(--int) / var(--int) * var(--int-grid-half));
   letter-spacing: 0.5px;
   text-align:     center;
+  text-wrap:      balance;
 }
 
 /** Headings. */
@@ -359,6 +384,7 @@ body > div.app-container.app-container {
 
 .markdown-preview-section >div> :is(h1, h2, h3, h4, h5, h6) {
   font-size: var(--h-size);
+  text-wrap: balance;
 
   /* I won't make you measure + dimension your heading fonts. I just don't care. So, we guess. */
   --int-h: calc(var(--h-mult) * var(--int-body) * var(--int) / var(--int));
@@ -490,6 +516,7 @@ body > div.app-container.app-container {
     font-size:   var(--typo-compact-em);
     font-style:  italic;
     text-indent: 0;
+    text-wrap:   balance;
 
     /* The heading values get recalculated, first. */
     --int-h:        calc(var(--h-mult) * var(--int-body));
@@ -649,7 +676,8 @@ margin-bottom: calc((var(--grid-row-full) / 2 + var(--typo-body-base) - var(--ty
 /** Elements within lists **/
 
 /* Elements with a half-grid margin add the margin to the whole list: */
-.markdown-rendered :is(ol, ul):has(>li>*+:not(p:only-of-type,
+.markdown-rendered :is(ol, ul):has(>li>*+:not(
+    p:only-of-type,
     dl,
     ol,
     ul,
@@ -674,7 +702,8 @@ margin-bottom: calc((var(--grid-row-full) / 2 + var(--typo-body-base) - var(--ty
     del,
     dfn,
     ins,
-    kbd))>li {
+    kbd)
+  )>li {
   margin-bottom: var(--grid-row-half);
 }
 
@@ -685,17 +714,19 @@ margin-bottom: calc((var(--grid-row-full) / 2 + var(--typo-body-base) - var(--ty
 /** Tables **/
 
 /** Blockquotes **/
-/* Tricky. Set up normal blockquotes on the half-grid as well as you can. */
-/* This requires subtracting the border out of the margin and padding. */
-/* Using margin to compensate can lead to incorrect grid spacing, actually. */
-/* But it's better than taking e.g. all of a 4px border out of the padding. */
-.markdown-rendered blockquote {
-  --border-half: calc(var(--blockquote-border-thickness) / 2 * var(--int) / var(--int));
 
-  margin:        calc(var(--grid-row-half) - var(--border-half)) 0;
-  padding:       calc(var(--grid-row-half) - var(--blockquote-border-thickness) + var(--border-half)) 1.75ch;
+/* Tricky: Set up normal blockquotes on the half-grid as well as you can. */
+/* This requires subtracting the border width from the margin + padding. */
+/* Using margin to compensate can lead to incorrect grid spacing, in some cases. */
+/* But it's better than subtracting e.g. a full 4px border from just the padding. */
+
+.markdown-rendered blockquote {
   border:        var(--blockquote-border-thickness) solid var(--blockquote-border-color);
   border-radius: 0px;
+
+  --border-half: calc(var(--blockquote-border-thickness) / 2 * var(--int) / var(--int));
+  margin:        calc(var(--grid-row-half) - var(--border-half)) 0;
+  padding:       calc(var(--grid-row-half) - var(--blockquote-border-thickness) + var(--border-half)) 1.75ch;
 }
 
 .markdown-rendered blockquote p {
@@ -713,21 +744,17 @@ p+p,
 
 /** Embed styles ------------------------------------------------------------------------------ **/
 
-.markdown-preview-section >div> *:has(> span.internal-embed) {
-  --file-margins: 0px;
+/* This treats all embeds as "naked" transcludes. That may not be what you're after. */
 
+.markdown-preview-section >div> :has(> span.internal-embed) {
+  --file-margins: 0px;
   margin:  0;
   padding: 0;
 
-  & .markdown-embed-title {
-    display: none;
-  }
-
+  & .markdown-embed-title,
   & .markdown-embed-link {
     display: none;
   }
-
-  /* I want naked embeds, almost always, so: */
 
   & span.markdown-embed,
   & .markdown-preview-view {
@@ -742,14 +769,8 @@ p+p,
     max-width:    100%;
     min-height:   100% !important;
 
-    /* Remove inline titles. */
     &>.mod-header {
       display: none;
-    }
-
-    /* Okay but, like, div>p is *always* p:first-child ? */
-    & p:first-child {
-      margin-top: var(--grid-row-half);
     }
 
     & section.footnotes>ol {
@@ -788,22 +809,33 @@ p+p,
   }
 
   & code {
-    font-size: var(--font-smallest);
+    font-size:   var(--font-smallest);
     font-weight: 500;
   }
-}
 
-/* Footnotes ending in blockquotes push down their jump link; move it back up */
-.markdown-preview-view ol li[data-footnote-id]>blockquote>p:nth-last-child(2) {
-  margin-block-end: 0;
-}
+  /* This thing is just tiny. Gotta do something about it. */
+  & a.footnote-backref {
+    --embiggen-for-clicken: var(--grid-row-half);
 
-/* This positions the jump link in the bottom-right corner of the blockquote */
-.markdown-preview-view ol li[data-footnote-id]>blockquote:nth-last-child(2)+a {
-  float: right;
-  clear: right;
-  top:   calc(-2em - 1ex);
-  right: calc((1em + var(--list-indent-item)) / 2);
+    padding:     0 var(--embiggen-for-clicken) var(--embiggen-for-clicken) var(--embiggen-for-clicken);
+    margin-left: calc(-1 * var(--embiggen-for-clicken));
+  }
+
+  /* Reposition the back-reference link in the bottom-right corner of blockquotes. */
+  & li[data-footnote-id]>blockquote+a.footnote-backref {
+    float: right;
+    clear: right;
+    right: calc(-1 * var(--list-indent));
+    top:   calc(-2 * var(--grid-row-full));
+  }
+
+  /* Reposition the back-reference link following a sub-list. */
+  & li[data-footnote-id]>:is(ol, ul)+a.footnote-backref {
+    float: right;
+    clear: right;
+    top:   calc(-1 * var(--grid-row-full));
+    left:  calc(2 * var(--embiggen-for-clicken));
+  }
 }
 
 /** Callout classes --------------------------------------------------------------------------- **/
