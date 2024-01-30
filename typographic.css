@@ -2,11 +2,11 @@
 /** -- Licensed under the MIT/X11 License (http://opensource.org/licenses/MIT) -------- 2024 -- **/
 
 /*
- This is the absurd undertaking to round everything to an exact pixel on a screen -- more or less.
- What it actually does is takes a set of font measurements (set in another file) and uses them to
- dimension an invisible grid layout. The grid isn't materialized in any way -- there aren't any
- changes to `display` attributes. Instead, everything is dimensioned to the grid and we trust the
- browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--int) / var(--int)`.
+This is the absurd undertaking to round everything to an exact pixel on a screen -- more or less.
+What it actually does is takes a set of font measurements (set in another file) and uses them to
+dimension an invisible grid layout. The grid isn't materialized in any way -- there aren't any
+changes to `display` attributes. Instead, everything is dimensioned to the grid and we trust the
+browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--int) / var(--int)`.
 */
 
 /** Font face imports ------------------------------------------------------------------------- **/
@@ -16,32 +16,71 @@
 /** Base CSS variables ------------------------------------------------------------------------ **/
 
 :root {
+
   /** This works by underflowing <number>s to fake <integers>s:                                 **/
-  /*  --number-to-int: calc(25.4 * var(--int) / var(--int));                                     */
-  /*  --n-to-interval: calc(25.4 / var(--interval) * var(--int) / var(--int) * var(--interval);  */
+  /*  number-to-int: calc(25.4 * var(--int) / var(--int));                                       */
+  /*  n-to-interval: calc(25.4 / var(--interval) * var(--int) / var(--int) * var(--interval);    */
 
   --int: 4.9406564584124654e-324;
 
   /** Document dimensions (ideal/target/ranges) **/
 
-  --typo-ideal-line:     68ch;
-  --typo-ideal-minimum:  36ch;
-  --typo-ideal-maximum: 100ch;
+  /* Our "ideal" dimensions are in units of <ch>, but first we need them as <number>s. */
+  /* They are used in later calculations that require them to be unitless. So we set them here: */
+  --typo-ideal-line-number: 64;
+  --typo-ideal-min-number:  34;
+  --typo-ideal-max-number:  84;
+
+  /* These are ideal targets, but Markdown is not, frankly, the ideal format for document design. */
+  /* From here, we should try to be more realistic about how our writing goes from md -> html. */
 
   /* Markdown documents - one column, highly vertical layout - tend to sprawl vertically. */
-  /* We should compromise our ideal line length to fit more useful content on the screen: */
-  --typo-extra-line:      5ch;
+  /* We should compromise our ideal line length to fit more useful content on the screen. */
+  /* I decided to set this value to mean "at least one more word per line": */
+  --typo-extra-line-number:  8;
 
-  /* The typical character isn't 100%-width but a bit narrower. Fonts can set their own *-ch-*s: */
-  --typo-ch-correction:  0.98;
+  /* The average character in normal writing isn't 100%-width but usually somewhat narrower. */
+  /* When we add measurements for a new font, we set a new ch-correction value, too. */
+  --typo-ch-correction:   0.98;
 
-  --typo-line-width:     calc((var(--typo-ideal-line) + var(--typo-extra-line))        * var(--typo-ch-correction));
-  --typo-line-min-width: calc((var(--typo-ideal-minimum) + var(--typo-extra-line) / 2) * var(--typo-ch-correction));
-  --typo-line-max-width: calc((var(--typo-ideal-maximum) + var(--typo-extra-line) / 2) * var(--typo-ch-correction));
+  /* Taken together, this gives a set of non-ideal line widths which are more attuned to our reality: */
+  --typo-line-width-number: calc((var(--typo-ideal-line-number) + var(--typo-extra-line-number))     * var(--typo-ch-correction));
+  --typo-line-min-w-number: calc((var(--typo-ideal-min-number)  + var(--typo-extra-line-number) / 2) * var(--typo-ch-correction));
+  --typo-line-max-w-number: calc((var(--typo-ideal-max-number)  + var(--typo-extra-line-number) / 2) * var(--typo-ch-correction));
+
+  /* Our (real) line length determines how far the reader's eye has to travel when moving to the next line. */
+  /* That's a useful hint for determining the ideal line height with just a bit of mathy reasoning. */
+  /* We're concerned with proportions, aspect ratios, reciprocals, etc., so our mean is the geometric mean. */
+  /* While this value "can" be computed in CSS, it is absolutely inadvisable as of January 2024. */
+  /* So we use an approximation of the geomean using a very-rough approximation of the stdev. */
+
+  --typo-ideal-amean: calc((var(--typo-line-width-number) + var(--typo-line-min-w-number) + var(--typo-line-max-w-number)) / 3);
+  --typo-ideal-stdev: calc((var(--typo-line-max-w-number) - var(--typo-line-min-w-number)) / 4);
+  --typo-ideal-gmean: calc(var(--typo-ideal-amean) - 0.5 * var(--typo-ideal-stdev));
+
+  /* Next, we need a ratio relative to the x-height that also takes our line lengths into account. */
+  /* This has a dependence on a font measurement -- the ex -- that we haven't taken, yet. So we redo this later. */
+  /* And I'm just ignoring the geomean, basically, by averaging it against the real line width. Makes one wonder. */
+
+  --typo-width-ratio: calc(1 - (((var(--typo-ideal-gmean) + var(--typo-line-width-number)) / 2) - var(--typo-line-min-w-number)) / var(--typo-line-max-w-number));
+  --int-body: 17;
+  --int-ex:    7;
+  --typo-height-ratio:      calc(var(--int-ex) / var(--int-body));
+  --typo-line-height-ratio: calc(var(--typo-width-ratio) * var(--typo-height-ratio));
+
+  /* Finally, convert all these values to <ch>s and such, which is how they're used normally: */
+
+  --typo-ideal-line:     calc(1ch * var(--typo-ideal-line-number));
+  --typo-ideal-minimum:  calc(1ch * var(--typo-ideal-min-number));
+  --typo-ideal-maximum:  calc(1ch * var(--typo-ideal-max-number));
+  --typo-extra-line:     calc(1ch * var(--typo-extra-line-number));
+  --typo-line-width:     calc(1ch * var(--typo-line-width-number));
+  --typo-line-min-width: calc(1ch * var(--typo-line-min-w-number));
+  --typo-line-max-width: calc(1ch * var(--typo-line-max-w-number));
 
   /** Grid dimensions and layout **/
 
-  /* These are some typical, nice grid values. */
+  /* We set some typical, nice grid values instead of calculating them, this time. */
   /* The grid is a half-baseline grid, so we need the full rows to be even counts. */
   --grid-row-full: 26px;
   --grid-row-half: 13px;
@@ -49,8 +88,7 @@
   --int-grid-half: 13;
 
   /* I intended all headings to use padding for spacing, but it isn't required. */
-  /* Sometimes, margins are just better. I've gone to a painful length to make this configurable. */
-  /* Set only one of the following values to 1, and the other to 0: */
+  /* Set only one to 1, the other to 0: */
   --typo-h-padded: 1;
   --typo-h-margin: 0;
 
@@ -85,7 +123,7 @@
   /* We can envision another extreme where paragraphs are never formed and all text is brief. */
   /* In this mirror world, we might see things like single-bullet lists of (eg) just a link.  */
   /* How would you handle layout where no greater structures ever emerge from smaller ones?   */
-  /* I'm putting this here just to start pondering it and because it rounds out  */
+  /* I'm putting this here just to start pondering it and because it rounds out the section.  */
 
   --choppy-p-before: 1;
   --choppy-p-indent: 0;
@@ -95,39 +133,42 @@
 
 /** Document body variables ------------------------------------------------------------------- **/
 
-body > div.app-container.app-container {
+/* Get a new grid. */
 
-  /** Body text **/
+body > .app-container.app-container {
 
-  /* Use one of the typo-font-*.css files for your body text. */
+  /** Measured fonts **/
+  /* Use one of the typo-font-*.css files for your body text and compact (small) text. */
 
-  /** Recalculate the grid based on the body font **/
+  /** Non-measured fonts **/
+  --typo-title-font: Lora, Bitter, serif;
+  --typo-h-font:     Lato, "Eurostile LT Std", Ebrima, Lora, Bitter, serif;
+
+  /** Recalculate the grid based on the body font measurements **/
+
+  --typo-height-ratio:      calc(var(--int-ex) / var(--int-body));
+  --typo-line-height-ratio: calc(var(--typo-width-ratio) * var(--typo-height-ratio));
 
   /* Grid rows */
-  --grid-row-full: calc(var(--typo-body-ex) / 0.28 / 2 * var(--int) / var(--int) * 2);
-  --grid-row-half: calc(var(--grid-row-full) / 2 * var(--int) / var(--int));
-  --int-grid-full: calc(var(--int-ex) / 0.28 * var(--int) / var(--int));
-  --int-grid-half: calc(var(--int-grid-full) / 2 * var(--int) / var(--int));
-  /* Ratio of line height to the em, unitless: */
-  --grid-row-ratio: calc(var(--int-ex) / 0.28 / var(--int-body));
+  --int-grid-half: calc(var(--int-ex) / var(--r) / 2 * var(--int) / var(--int));
+  --int-grid-full: calc(2 * var(--int-grid-half));
+  --grid-row-full: calc(1px * var(--int-grid-half));
+  --grid-row-full: calc(1px * var(--int-grid-full));
 
   /* Grid columns */
   /* Obsidian notes get horizontally resized constantly. It's not worth changing the col width. */
   /* So instead, we have this sort of, useless, not-actually-a-grid column. It's kind of sad.   */
-  --grid-col-half: calc((var(--grid-row-full) + var(--typo-body-ex) - 1px) * var(--int) / var(--int));
-  --grid-col-full: calc(var(--grid-col-half) * 2);
-  /* Use these variables to exaggerate proportions or approximate ratios along the grid. */
-  --int-col-half: calc(var(--int-ex) / 0.28 + var(--int-ex) - 1);
+  --int-col-half: calc(var(--int-grid-full) + var(--int-ex) - 1);
   --int-col-full: calc(var(--int-col-half) * 2);
-  /* Ratio of columns to lines, unitless: */
-  --grid-col-ratio: calc(var(--int-col-full) / var(--int-grid-full));
+  --grid-col-half: calc(1px * var(--int-col-half));
+  --grid-col-full: calc(1px * var(--int-col-full));
+}
 
-  /** Overriding app.css */
+/* Update everything based on the new grid. */
 
-  /* This whole section is unorganized and embarrassing as hell. */
+body>div.app-container.app-container {
 
-  --typo-title-font: Lora, Bitter, serif;
-  --typo-h-font: "Lato", "Eurostile LT Std", Ebrima, sans-serif;
+  /* This whole section is unorganized as hell. */
 
   --file-line-width: var(--typo-line-width, --typo-ideal-line, 64ch);
   --line-width: var(--file-line-width);
