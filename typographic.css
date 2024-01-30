@@ -62,7 +62,7 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
   /* This has a dependence on a font measurement -- the ex -- that we haven't taken, yet. So we redo this later. */
   /* And I'm just ignoring the geomean, basically, by averaging it against the real line width. Makes one wonder. */
 
-  --typo-width-ratio: calc(1 - (((var(--typo-ideal-gmean) + var(--typo-line-width-number)) / 2) - var(--typo-line-min-w-number)) / var(--typo-line-max-w-number));
+  --typo-width-ratio: calc(1 - ((var(--typo-ideal-gmean) + var(--typo-line-width-number)) / 2) - var(--typo-line-min-w-number)) / var(--typo-line-max-w-number));
   --int-body: 17;
   --int-ex:    7;
   --typo-height-ratio:      calc(var(--int-ex) / var(--int-body));
@@ -107,16 +107,19 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
   /* We can fake-in some intentionality with "monotony breaks" around headings, quotes, etc. */
   /* These make use of standout elements, heavier line weights, and a ton of added spacing.  */
 
-  --monotony-p-before:       0;
-  --monotony-p-indent:       1;
+  --monotony-heading-margin: 1;
+  --monotony-heading-padded: 0;
+  --monotony-p-before:       1;
+  --monotony-p-indent:       0;
   --monotony-p-before-first: 1;
-  --monotony-p-indent-first: 0;
+  --monotony-p-indent-first: 1;
   --monotony-heavy-lines:    5px;
   --monotony-medium-lines:   2px;
-  --monotony-under-position: under;
-  --monotony-line-ratio:     0.30;
+  --monotony-underline-position: under;
+
   /* in half-grid increments: */
-  --monotony-extra-space:    1;
+  --monotony-extra-spacing:  1;
+  --monotony-extra-heading:  3;
 
   /** Shortform layout **/
 
@@ -337,7 +340,7 @@ body>div.app-container.app-container {
 
 /* Finally, we can style our actual notes again. */
 
-.markdown-preview-sizer {
+.markdown-preview-sizer.markdown-preview-sizer.markdown-preview-sizer.markdown-preview-sizer {
   max-width:    var(--typo-line-width);
   min-width:    var(--typo-line-min-width);
   margin-left:  auto;
