@@ -1,105 +1,29 @@
 ## One stupid trick
 
-This is the entire idea, really:
+This is the entire idea:
 
 ```css
-  /** typeO works by underflowing <number>s to fake <integers>s:                                **/
+  /** This works by underflowing <number>s to fake <integers>s: **/
   --int:           4.9406564584124654e-324;
   --number-to-int: calc(25.4 * var(--int) / var(--int));
-  --n-to-interval: calc(25.4 / var(--interval) * var(--int) / var(--int) * var(--interval));
+  --n-to-interval: calc(
+      25.4 / var(--interval)
+      * var(--int) / var(--int)
+      * var(--interval));
 ```
 
-I'm using this to set everything on an exact half-baseline grid. Everything from a note's margins to its bullet points are dimensioned against a set of measurements of the body font.
+I use this hacky trick to set everything on a half-baseline grid that's precise to the pixel. To proportion that grid, I take a set of measurements of the body font, then use a simple set of math-y rules to set every other element on the page in proportion to the text.
+
+The method doesn't work across all browsers on all platforms, and we have no reason to believe it will work long into the future on any given one, either. So it's a trick, and a stupid trick, and the fact it works is a product of a particular environment. Let's just appreciate these things for what they are: toys.
 
 ## Motivation
 
-I _bet on text_ and now I'm betting on what's next. Typographic principles ask authors to pay attention to space and rhythm in the final product because these things do, seriously, matter. Markdown asks us to focus on productivity and rarely consider _anything_ as final. It especially wants to be clear of any markup that's solely for style. Both these idioms prioritize text but do so in vastly different ways. My goal is to stop thinking about layout while writing by sticking to a really solid document design. But I made things weird from there.
+Typographic principles ask authors to pay attention to space and rhythm (because these things matter). Markdown asks us to focus on productivity (to the exclusion of all else). To keep it readable as plaintext, it excludes most markup for style and layout. These two ideas are locked in debate over what makes text meaningful. My goal is to get a solid layout no matter what I write through absurdly sturdy document design.
 
-I chose text baselines as the basic unit of design. This is a common, text-first approach that relies on regularly divisible blocks of text to provide reliable visual cues. Not every document meets this need, but few are harmed by missing it. Next, I wanted a much more compact layout in many cases, so the baseline unit was replaced by the half-baseline. Obsidian doesn't have a stable view width, so column units aren't as significant, but I went with a four-column layout for starters. This was plenty of annoying, fiddly work for someone still learning CSS. All this because we can't get a modulo or an abs() or a literally-anything.
+I chose text baselines as the rows of a grid layout. This is a common approach that produces orderly blocks of text to provide reliable visual cues. Not every document meets this need, but few are harmed by missing it. This produced a set of documents that sprawled vertically, so the baseline unit was replaced by the half-baseline. Notes in Obsidian have a variable view width, so grid columns aren't significant (as in "meaningful"), but I adopted the twelve-column layout. This became the grid system, from which came the need to "fit to the grid".
 
-## Example 1
+## Work in progress
 
-Knowing the exact size of everything in a document allows non-vertical layouts without changing `display` settings constantly (or ever). Everything just lays out on the page. Since the document is built on baselines, you can place different elements side-by-side and see their text line up neatly, too. Nothing is ever, ever customized, and nothing ever looks sorely out of place. That's the kind of compromise I am after.
+I uploaded this to shame myself into finishing this project that's been halfway to half-done for a year, now, and plaguing my Obsidian vault in the meantime. That basically worked—this CSS is usable (enough) to transplant into other vaults. This is one of four separate typography projects I am working on, so progress here will be slow.
 
-Here's a screencap of my conversion of the Classic Explorer template for RPGs into a note-level CSS class. A small amount of non-text markup was used to add the `.aside` and `.span-*` classes. It's not fully plaintext, but it's easy to ignore and keep writing.
-
-> ![image](https://github.com/efrec/typeo/assets/103912894/f2a74a36-4035-4d8a-ae8d-b35f7f7c5816)
-
-Text baselines align between text elements without any special placement. Even this test document looks orderly while intentionally crowding nonsense together. And like I mentioned, it achieves that result without much markup. Here's its plaintext:
-
-> ```markdown
-> | 1d4 | Conditions |
-> |:---:| ---------- |
-> |  1  | Concepted  |
-> |  2  | Drafted    |
-> |  3  | Proofread  |
-> |  4  | Published  |
-> { .span-1 }
-> 
-> | 1d4 | Conditions |
-> |:---:| ---------- |
-> |  1  | Concepted  |
-> |  2  | Drafted    |
-> |  3  | Proofread  |
-> |  4  | Published  |
-> { .span-1 }
-> 
-> | 1d4 | Conditions |
-> |:---:| ---------- |
-> |  1  | Concepted  |
-> |  2  | Drafted    |
-> |  3  | Proofread  |
-> |  4  | Published  |
-> { .span-1 }
-> 
-> | 1d4 | Conditions |
-> |:---:| ---------- |
-> |  1  | Concepted  |
-> |  2  | Drafted    |
-> |  3  | Proofread  |
-> |  4  | Published  |
-> { .span-1 }
-> 
-> After another set of four `span-1` tables, place an aside paragraph and a content paragraph.
-> { .aside }
->
-> This is another content paragraph. This thing's CSS is just tragic but it *does* work.
-> The best systems have the worst plumbing.
-> All of this is produced by an `.aside` class on the aside and a `.span-1` on each of the tables.
-> Content doesn't need to be told that it's content.
-> 
-> ---
-> 
-> #### Aside and Content Tables
-> 
-> Asides and content are *not* on the four-column grid, which makes this whole exercise a bit futile, really.
-> Originally of course, they were, but I wanted more pragmatic constraints on line lengths.
-> When those constraints are better satisfied, I might snap everything back to the vertical grid.
-> Filed under "todo".
-> 
-> This is a test of an aside and a content-width table. Boy-howdy, sure is.
-> Text should align between tables and text.
-> { .aside }
-> 
-> | 1d4 | Layout Project                                                |
-> |:---:| ------------------------------------------------------------- |
-> |  1  | **Manuscript layout.** *Clean, approachable, and timeless.*   |
-> |  2  | **Column layout.** *Robust, functional, and familiar.*        |
-> |  3  | **Modular layout.** *Dense, orderly, and experimental.*       |
-> |  4  | **Hierarchical layout.** *Intuitive, engaging, and exciting.* |
-> 
-> Even when using `content` tables, text is right up against the table.
-> Maybe this is just right, but often it is too close.
-> To add spacing around a table, you can add a line break (`<br>`).
-> Each `br` tag adds only a half-grid row of height, not a full one, to give you a greater degree
-> of control over layout.
-> 
-> Spacing around a table could be controlled by table classes, e.g. "space-tight" and "space-loose",
-> instead of using elements-as-layout (*boo*).
-> ```
-
-## Example 2
-
-Normal documents don't have any layout at all. They need to look like something, but not like anything special. Here's some notes on generating means. It's readable, and looks fine, if you ignore the default theme.
-
-> ![image](https://github.com/efrec/typeo/assets/103912894/d6949d33-4b68-4fb3-a482-93abe7e8fa6b)
+My motivation is to remain a productive writer, so to get new vault styles I swap between Themes (instead of updating this CSS constantly). That will slow down the pace of fixes, updates, etc. on this concept. Hopefully, we get some sort of trigonometry support or even just `abs()` so I can do more fun stuff, and that will shift my focus back to doing math-y layout in pure CSS. Until then.
