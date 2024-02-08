@@ -16,37 +16,49 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
 /** Base CSS variables ------------------------------------------------------------------------ **/
 
 :root {
-
   /** This works by underflowing <number>s to fake <integers>s:                                 **/
   /*  number-to-int: calc(25.4 * var(--int) / var(--int));                                       */
   /*  n-to-interval: calc(25.4 / var(--interval) * var(--int) / var(--int) * var(--interval);    */
 
   --int: 4.9406564584124654e-324;
+  --r-down:     -0.5;
+  --r-up:        0.5;
+  --decrement:    -1;
+  --increment:     1;
 
   /** Document dimensions (ideal/target/ranges) **/
 
   /* Our "ideal" dimensions are in units of <ch>, but first we need them as <number>s. */
   /* They are used in later calculations that require them to be unitless. So we set them here: */
   --typo-ideal-line-number: 64;
-  --typo-ideal-min-number:  34;
-  --typo-ideal-max-number:  84;
+  --typo-ideal-min-number:  30;
+  --typo-ideal-max-number:  80;
 
-  /* These are ideal targets, but Markdown is not, frankly, the ideal format for document design. */
-  /* From here, we should try to be more realistic about how our writing goes from md -> html. */
+  /* These are ideal targets, but Markdown is not the ideal format for document design. */
+  /* We should try to be more realistic about how our writing goes from md -> html. */
 
   /* Markdown documents - one column, highly vertical layout - tend to sprawl vertically. */
   /* We should compromise our ideal line length to fit more useful content on the screen. */
   /* I decided to set this value to mean "at least one more word per line": */
-  --typo-extra-line-number:  8;
+  --typo-extra-line-number: 8;
 
   /* The average character in normal writing isn't 100%-width but usually somewhat narrower. */
   /* When we add measurements for a new font, we set a new ch-correction value, too. */
-  --typo-ch-correction:   0.98;
+  --typo-ch-correction: 0.98;
 
   /* Taken together, this gives a set of non-ideal line widths which are more attuned to our reality: */
-  --typo-line-width-number: calc((var(--typo-ideal-line-number) + var(--typo-extra-line-number))     * var(--typo-ch-correction));
-  --typo-line-min-w-number: calc((var(--typo-ideal-min-number)  + var(--typo-extra-line-number) / 2) * var(--typo-ch-correction));
-  --typo-line-max-w-number: calc((var(--typo-ideal-max-number)  + var(--typo-extra-line-number) / 2) * var(--typo-ch-correction));
+  --typo-line-width-number: calc(
+    (var(--typo-ideal-line-number) + var(--typo-extra-line-number)) *
+      var(--typo-ch-correction)
+  );
+  --typo-line-min-w-number: calc(
+    (var(--typo-ideal-min-number) + var(--typo-extra-line-number) / 2) *
+      var(--typo-ch-correction)
+  );
+  --typo-line-max-w-number: calc(
+    (var(--typo-ideal-max-number) + var(--typo-extra-line-number) / 2) *
+      var(--typo-ch-correction)
+  );
 
   /* Our (real) line length determines how far the reader's eye has to travel when moving to the next line. */
   /* That's a useful hint for determining the ideal line height with just a bit of mathy reasoning. */
@@ -54,48 +66,95 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
   /* While this value "can" be computed in CSS, it is absolutely inadvisable as of January 2024. */
   /* So we use an approximation of the geomean using a very-rough approximation of the stdev. */
 
-  --typo-ideal-amean: calc((var(--typo-line-width-number) + var(--typo-line-min-w-number) + var(--typo-line-max-w-number)) / 3);
-  --typo-ideal-stdev: calc((var(--typo-line-max-w-number) - var(--typo-line-min-w-number)) / 4);
-  --typo-ideal-gmean: calc(var(--typo-ideal-amean) - 0.5 * var(--typo-ideal-stdev));
+  --typo-ideal-amean: calc(
+    (
+        3 * var(--typo-line-width-number) + var(--typo-line-min-w-number) +
+          var(--typo-line-max-w-number)
+      ) / 5
+  );
+  --typo-ideal-stdev: calc(
+    (var(--typo-line-max-w-number) - var(--typo-line-min-w-number)) / 7
+  );
+  --typo-ideal-gmean: calc(
+    var(--typo-ideal-amean) - 0.5 * var(--typo-ideal-stdev)
+  );
 
   /* Next, we need a ratio relative to the x-height that also takes our line lengths into account. */
   /* This has a dependence on a font measurement -- the ex -- that we haven't taken, yet. So we redo this later. */
-  /* And I'm just ignoring the geomean, basically, by averaging it against the real line width. Makes one wonder. */
-
-  --typo-width-ratio: calc(1 - ((var(--typo-ideal-gmean) + var(--typo-line-width-number)) / 2) - var(--typo-line-min-w-number)) / var(--typo-line-max-w-number));
-  --int-body: 17;
-  --int-ex:    7;
-  --typo-height-ratio:      calc(var(--int-ex) / var(--int-body));
-  --typo-line-height-ratio: calc(var(--typo-width-ratio) * var(--typo-height-ratio));
+  --typo-width-ratio: calc(
+    1 - (var(--typo-ideal-gmean) - var(--typo-line-min-w-number)) /
+      var(--typo-line-max-w-number)
+  );
+  --int-em: 17;
+  --int-ex: 7;
+  --typo-height-ratio: calc((var(--int-ex) + 1) / var(--int-em));
+  --typo-line-height-ratio: calc(
+    var(--typo-width-ratio) * var(--typo-height-ratio)
+  );
 
   /* Finally, convert all these values to <ch>s and such, which is how they're used normally: */
 
-  --typo-ideal-line:     calc(1ch * var(--typo-ideal-line-number));
-  --typo-ideal-minimum:  calc(1ch * var(--typo-ideal-min-number));
-  --typo-ideal-maximum:  calc(1ch * var(--typo-ideal-max-number));
-  --typo-extra-line:     calc(1ch * var(--typo-extra-line-number));
-  --typo-line-width:     calc(1ch * var(--typo-line-width-number));
+  --typo-ideal-line: calc(1ch * var(--typo-ideal-line-number));
+  --typo-ideal-minimum: calc(1ch * var(--typo-ideal-min-number));
+  --typo-ideal-maximum: calc(1ch * var(--typo-ideal-max-number));
+  --typo-extra-line: calc(1ch * var(--typo-extra-line-number));
+  --typo-line-width: calc(1ch * var(--typo-line-width-number));
   --typo-line-min-width: calc(1ch * var(--typo-line-min-w-number));
   --typo-line-max-width: calc(1ch * var(--typo-line-max-w-number));
 
-  /** Grid dimensions and layout **/
-
+  /** Grid dimensions **/
+  
+  /* The universe has settled on this number, and so we will, too. */
+  --typo-grid-columns: 12;
+  
   /* We set some typical, nice grid values instead of calculating them, this time. */
   /* The grid is a half-baseline grid, so we need the full rows to be even counts. */
   --grid-row-full: 26px;
   --grid-row-half: 13px;
   --int-grid-full: 26;
   --int-grid-half: 13;
+  
+  /** Basic layout **/
 
-  /* I intended all headings to use padding for spacing, but it isn't required. */
-  /* Set only one to 1, the other to 0: */
+  /* Dimensioned as <number> */
+
+  /* As pseudo boolean switches: */
+
+  --text-indent: 0;
+  --text-before: 1;
+  --text-indent-first: 0;
+  --text-before-first: 0;
   --typo-h-padded: 1;
   --typo-h-margin: 0;
 
-  /* In units of full grid rows (so halves are allowed): */
+  /* In multiples of body font size: */
+  --h-mod: 1.05;
+  --typo-h6-number: 1;
+  --typo-h5-number: calc(var(--h-mod) * var(--typo-h6-number));
+  --typo-h4-number: calc(var(--h-mod) * var(--typo-h5-number));
+  --typo-h3-number: calc(var(--h-mod) * var(--typo-h4-number));
+  --typo-h2-number: calc(var(--h-mod) * var(--typo-h3-number));
+  --typo-h1-number: calc(var(--h-mod) * var(--typo-h2-number));
+  --typo-title-number: calc(
+    var(--typo-h1-number) *
+    var(--typo-h1-number) *
+    var(--typo-h1-number)
+  );
+
+  /* In increments of full-grid rows: */
+  --typo-h-subtitle-rows: 1;
   --typo-li-rows: 1;
-  --typo-table-rows: 1;
   --typo-table-header-rows: 1.5;
+  --typo-table-rows: 1;
+
+  /* In increments of half-grid rows: */
+  /* todo: formulate these values */
+  --typo-h1-rows: calc(15 + 3 * var(--typo-h-margin));
+  --typo-h2-rows: calc( 8 + 2 * var(--typo-h-margin));
+  --typo-h3-rows: calc( 5 + 1 * var(--typo-h-margin));
+  --typo-h4-rows: 3;
+  --typo-h5-rows: 2;
+  --typo-h6-rows: 1;
 
   /** Longform layout **/
 
@@ -109,17 +168,17 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
 
   --monotony-heading-margin: 1;
   --monotony-heading-padded: 0;
-  --monotony-p-before:       1;
-  --monotony-p-indent:       0;
+  --monotony-p-before: 1;
+  --monotony-p-indent: 0;
   --monotony-p-before-first: 1;
   --monotony-p-indent-first: 1;
-  --monotony-heavy-lines:    5px;
-  --monotony-medium-lines:   2px;
+  --monotony-heavy-lines: 5px;
+  --monotony-medium-lines: 2px;
   --monotony-underline-position: under;
 
   /* in half-grid increments: */
-  --monotony-extra-spacing:  1;
-  --monotony-extra-heading:  3;
+  --monotony-extra-spacing: 1;
+  --monotony-extra-heading: 3;
 
   /** Shortform layout **/
 
@@ -128,73 +187,102 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
   /* How would you handle layout where no greater structures ever emerge from smaller ones?   */
   /* I'm putting this here just to start pondering it and because it rounds out the section.  */
 
+  --choppy-heading-margin: 0;
+  --choppy-heading-padded: 0;
   --choppy-p-before: 1;
   --choppy-p-indent: 0;
-  --choppy-p-before-first: 1;
+  --choppy-p-before-first: 0;
   --choppy-p-indent-first: 0;
+  --choppy-shrink-spacing: 0;
+
+  /* in half-grid increments: */
+  --choppy-shrink-heading: 4;
 }
 
 /** Document body variables ------------------------------------------------------------------- **/
 
 /* Get a new grid. */
 
-body > .app-container.app-container {
+body > div.app-container.app-container {
 
   /** Measured fonts **/
+
   /* Use one of the typo-font-*.css files for your body text and compact (small) text. */
 
   /** Non-measured fonts **/
-  --typo-title-font: Lora, Bitter, serif;
-  --typo-h-font:     Lato, "Eurostile LT Std", Ebrima, Lora, Bitter, serif;
+
+  --typo-title-font: Lora;
+  --typo-h-font:     Lato;
 
   /** Recalculate the grid based on the body font measurements **/
 
-  --typo-height-ratio:      calc(var(--int-ex) / var(--int-body));
-  --typo-line-height-ratio: calc(var(--typo-width-ratio) * var(--typo-height-ratio));
+  /* Derived from measured properties */
+  --typo-height-ratio:
+    calc((var(--int-em) - var(--int-ex)) / var(--int-em));
+  --typo-line-height-ratio:
+    calc(var(--typo-width-ratio) * var(--typo-height-ratio));
 
-  /* Grid rows */
-  --int-grid-half: calc(var(--int-ex) / var(--r) / 2 * var(--int) / var(--int));
+  --int-grid-half:
+    calc(
+    (1 + var(--int-ex) / var(--typo-line-height-ratio) / 2)
+    * var(--int) / var(--int)
+  );
   --int-grid-full: calc(2 * var(--int-grid-half));
-  --grid-row-full: calc(1px * var(--int-grid-half));
-  --grid-row-full: calc(1px * var(--int-grid-full));
 
-  /* Grid columns */
-  /* Obsidian notes get horizontally resized constantly. It's not worth changing the col width. */
-  /* So instead, we have this sort of, useless, not-actually-a-grid column. It's kind of sad.   */
+  /* Defining a column width independent of document width: */
   --int-col-half: calc(var(--int-grid-full) + var(--int-ex) - 1);
   --int-col-full: calc(var(--int-col-half) * 2);
+
+  --grid-row-half: calc(1px * var(--int-grid-half));
+  --grid-row-full: calc(1px * var(--int-grid-full));
   --grid-col-half: calc(1px * var(--int-col-half));
   --grid-col-full: calc(1px * var(--int-col-full));
 }
 
-/* Update everything based on the new grid. */
+/* Update everything based on that grid. */
 
-body>div.app-container.app-container {
+body > div.app-container.app-container {
+  
+  --text-before-size: var(--grid-row-half);
+  --text-indent-size: var(--grid-col-half);
+  --list-indent-item: 1ch;
 
-  /* This whole section is unorganized as hell. */
+  /* Obsidian properties */
 
-  --file-line-width: var(--typo-line-width, --typo-ideal-line, 64ch);
-  --line-width: var(--file-line-width);
-  --file-margins: 4ch;
-  --font-text: var(--typo-body-font);
-  --font-smallest: calc(var(--typo-compact-em) - 2px);
-  --font-smaller: calc(var(--typo-compact-em) - 1px);
-  --font-small: var(--typo-compact-em);
+  --file-margins:    4ch;
+  --file-line-width: var(--typo-line-width);
+  --line-width:      var(--file-line-width);
+
   --font-text-size: var(--typo-body-em);
-  --footnote-size: var(--font-small);
-  --inline-title-size: calc(var(--typo-title-em) * var(--int) / var(--int));
+  --font-small:     var(--typo-compact-em);
+  --font-smaller:   calc(var(--typo-compact-em) - 1px);
+  --font-smallest:  calc(var(--typo-compact-em) - 2px);
+  --footnote-size:  var(--font-small);
+  --table-text-size: var(--typo-body-em);
+  --line-height-normal: var(--grid-row-full);
+  --line-height-tight:  calc(var(--grid-row-full) - 2px);
+
+  --p-spacing: calc(var(--text-before) * var(--text-before-size));
+  --list-spacing: 0;
+
+  --radius-s:  calc(var(--typo-body-ex) / 2);
+  --radius-m:  var(--typo-body-ex);
+  --radius-l:  var(--typo-body-em);
+  --radius-xl: var(--grid-row-full);
+
+  --inline-title-font: var(--typo-title-font);
+  --inline-title-size:
+    calc(var(--typo-title-em) * var(--int) / var(--int));
   --inline-title-line-height: 1;
   --inline-title-weight: 500;
   --inline-title-margin-bottom: var(--grid-row-full);
-  --p-spacing: 0;
-  --inline-title-font: var(--typo-title-font);
+  
   --h1-font: var(--typo-h-font);
   --h2-font: var(--typo-h-font);
   --h3-font: var(--typo-h-font);
   --h4-font: var(--typo-h-font);
   --h5-font: var(--typo-h-font);
   --h6-font: var(--typo-h-font);
-  --heading-spacing: 0;
   --h1-line-height: 1;
   --h2-line-height: 1;
   --h3-line-height: 1;
@@ -207,101 +295,67 @@ body>div.app-container.app-container {
   --h4-weight: 600;
   --h5-weight: 600;
   --h6-weight: 600;
-  --h1-size: calc(var(--typo-h1-em) * var(--int) / var(--int));
-  --h2-size: calc(var(--typo-h2-em) * var(--int) / var(--int));
-  --h3-size: calc(var(--typo-h3-em) * var(--int) / var(--int));
-  --h4-size: calc(var(--typo-h4-em) * var(--int) / var(--int));
-  --h5-size: calc(var(--typo-h5-em) * var(--int) / var(--int));
-  --h6-size: calc(var(--typo-h6-em) * var(--int) / var(--int));
-  --line-height-normal: var(--grid-row-full);
-  --line-height-tight: calc(var(--grid-row-full) - 2px);
-  --list-indent-item: 1ch;
+  --heading-spacing: 0;
+
   --list-indent: calc(var(--grid-col-half) - var(--list-indent-item));
-  --list-spacing: 0;
-  --radius-s: calc(var(--typo-body-ex) / 2);
-  --radius-m: var(--typo-body-ex);
-  --radius-l: var(--typo-body-ascender);
-  --radius-xl: var(--typo-body-em);
-  --tag-size: inherit;
-  --tag-border-width: 0px;
-  --tag-padding-x: 0;
-  --tag-padding-y: 0;
-  --tag-radius: 0px;
-  /* Line weights should be more consistent across the doc */
-  /* But how to change this so themes can override easily? */
-  --blockquote-border-thickness: 1px;
+  --list-indent-half: calc(
+    (var(--list-indent) / 2 + 1px * var(--r-down)) * var(--int) / var(--int)
+  );
+}
 
-  /** Half-grid, baseline-aligned */
-  /* List bullets are placed on a full pixel even if half the indent is fractional */
-  /* So we produce a half which is rounded down and compensate in the remainder. */
-  --list-indent-half: calc((var(--list-indent) / 2 - 0.5px) * var(--int) / var(--int));
+/* Continue carrying forward updates. */
 
-  /** Text elements on grid **/
-  /* Use either indentation or space before, but not both. */
-  /* @todo: only use increments at this level; convert to px later */
-  --text-indent: 0;
-  --text-before: var(--grid-row-half);
-  --text-indent-first: 0;
-  --text-before-first: var(--grid-row-half);
+body > div.app-container.app-container {
+  
+  /* Dimensioned as <px> */
 
-  /** Large elements on grid **/
-  --typo-title-em:         calc(2.25 * var(--typo-body-em) * var(--int) / var(--int));
-  --typo-title-compact-em: calc(2.25 * var(--typo-compact-em) * var(--int) / var(--int));
-
-  --typo-h1-number: 1.25;
-  --typo-h2-number: 1.2;
-  --typo-h3-number: 1.15;
-  --typo-h4-number: 1.1;
-  --typo-h5-number: 1.05;
-  --typo-h6-number: 1;
+  --typo-title-em: calc(
+    var(--typo-title-number) * var(--typo-body-em)
+    * var(--int) / var(--int));
   --typo-h1-em: calc(var(--typo-h1-number) * var(--typo-body-em));
   --typo-h2-em: calc(var(--typo-h2-number) * var(--typo-body-em));
   --typo-h3-em: calc(var(--typo-h3-number) * var(--typo-body-em));
   --typo-h4-em: calc(var(--typo-h4-number) * var(--typo-body-em));
   --typo-h5-em: calc(var(--typo-h5-number) * var(--typo-body-em));
   --typo-h6-em: calc(var(--typo-h6-number) * var(--typo-body-em));
-  --typo-h-subtitle-rows: 1;
-  /* In increments of half-grids: */
-  --typo-h1-rows: calc(8 + 3 * var(--typo-h-margin));
-  --typo-h2-rows: calc(5 + 2 * var(--typo-h-margin));
-  --typo-h3-rows: calc(4 + 1 * var(--typo-h-margin));
-  --typo-h4-rows: 3;
-  --typo-h5-rows: 2;
-  --typo-h6-rows: 1;
-  /* Used to make a calculation look less bad later. */
-  /* There's no deeper meaning to this variable than that. */
-  --h1-leading-as-px: calc(var(--typo-h1-rows) * 1px);
-  --h2-leading-as-px: calc(var(--typo-h2-rows) * 1px);
-  --h3-leading-as-px: calc(var(--typo-h3-rows) * 1px);
-  --h4-leading-as-px: calc(var(--typo-h4-rows) * 1px);
-  --h5-leading-as-px: calc(var(--typo-h5-rows) * 1px);
-  --h6-leading-as-px: calc(var(--typo-h6-rows) * 1px);
 
-  /* Move table header's text baseline to the nearest *quarter*-baseline interval:
-      pad_total = header_rows * grid - 2 * border - line_height = pad_top + pad_bottom
-      pad_top = (header_rows * grid - line_height) / 2 - border - font_baseline_offset
-      pad_bottom = pad_total - pad_top
-      This produces a noticeable pad_top > pad_bottom; I fudge 1px in the below to even things up.
-  */
-  --typo-table-header-padding-top: calc((((var(--typo-table-header-rows) - 1) * var(--grid-row-full) - 2 * var(--table-border-width) - var(--typo-body-base)) / 2) * var(--int) / var(--int) - 1px);
-  --typo-table-header-padding-bot: calc((var(--typo-table-header-rows) - 1) * var(--grid-row-full) - 2 * var(--table-border-width) - var(--typo-table-header-padding-top));
+  --typo-table-header-padding: calc(
+    (var(--typo-table-header-rows) - 1) * var(--grid-row-full)
+    - 2 * var(--table-border-width)
+  );
+  --typo-table-header-padding-top: calc(
+    ((var(--typo-table-header-padding)
+      - var(--typo-body-base)) / 2 + 1px * var(--int-rd))
+    * var(--int) / var(--int)
+  );
+  --typo-table-header-padding-bot: calc(
+    var(--typo-table-header-padding)
+    - var(--typo-table-header-padding-top)
+  );
+
+  /* Obsidian properties */
+
+  --h1-size: calc(var(--typo-h1-em) * var(--int) / var(--int));
+  --h2-size: calc(var(--typo-h2-em) * var(--int) / var(--int));
+  --h3-size: calc(var(--typo-h3-em) * var(--int) / var(--int));
+  --h4-size: calc(var(--typo-h4-em) * var(--int) / var(--int));
+  --h5-size: calc(var(--typo-h5-em) * var(--int) / var(--int));
+  --h6-size: calc(var(--typo-h6-em) * var(--int) / var(--int));
 }
 
 /* We want to extinguish all the --typo variables by this point. Use the common properties. */
 
 .markdown-reading-view {
-  --font-text-override: var(--typo-body-font);
-  --font-text:          var(--font-text-override), var(--font-text-theme), var(--font-interface);
-  --font-text-size:     var(--typo-body-em);
+  --font-text-size: var(--typo-body-em);
   --line-height-normal: var(--grid-row-full);
-  --table-line-height:  var(--grid-row-full);
+  --table-line-height: var(--line-height-normal);
 }
 
 /** Longform variables ------------------------------------------------------------------------ **/
 
 .longform.markdown-preview-view.markdown-rendered {
-  --text-indent:       var(--monotony-p-indent);
-  --text-before:       var(--monotony-p-before);
+  --text-indent: var(--monotony-p-indent);
+  --text-before: var(--monotony-p-before);
   --text-indent-first: var(--monotony-p-indent-first);
   --text-before-first: var(--monotony-p-before-first);
 }
@@ -310,7 +364,6 @@ body>div.app-container.app-container {
 
 /* Since our documents are dimensioned based on the body font, we set and then unset it. */
 /* This gets into the UI styles, but what can you do. Otherwise, we get weird overlaps.  */
-/* This whole section needs serious improvements e.g. while grabbing windows. */
 
 .mod-root.workspace-split.mod-vertical {
   overflow-x: auto;
@@ -318,20 +371,26 @@ body>div.app-container.app-container {
 
 .mod-root.workspace-split .workspace-tabs {
   font-family: var(--typo-body-font);
-  font-size:   var(--typo-body-em);
-  min-width:   calc((2 * var(--file-margins) + var(--typo-line-min-width) + 1px) * var(--int) / var(--int));
-  width:       unset !important; /* width gets set directly on the element by the app js */
+  font-size: var(--typo-body-em);
+  min-width: calc(
+    (2 * var(--file-margins) + var(--typo-line-min-width) + 1px) * var(--int) /
+      var(--int)
+  );
+  width: unset !important;
 
   & .workspace-tab-header-container {
     font-family: var(--font-interface);
-    font-size:   var(--font-ui-medium);
+    font-size: var(--font-ui-medium);
   }
 }
 
-/* This in turn breaks the sidebars, which we fix, sort of. */
+/* This in turn breaks the sidebars, which we fix. */
 
 .workspace-split.mod-horizontal.mod-left-split {
-  max-width: min(30vw, 100vw - (2 * var(--file-margins) + var(--typo-line-min-width)));
+  max-width: min(
+    30vw,
+    100vw - (2 * var(--file-margins) + var(--typo-line-min-width))
+  );
 }
 
 .workspace-split.mod-horizontal.mod-right-split {
@@ -340,17 +399,41 @@ body>div.app-container.app-container {
 
 /* Finally, we can style our actual notes again. */
 
-.markdown-preview-sizer.markdown-preview-sizer.markdown-preview-sizer.markdown-preview-sizer {
-  max-width:    var(--typo-line-width);
-  min-width:    var(--typo-line-min-width);
-  margin-left:  auto;
+.markdown-preview-sizer.markdown-preview-sizer.markdown-preview-sizer {
+  max-width: var(--typo-line-width);
+  min-width: var(--typo-line-min-width);
+  margin-left: auto;
   margin-right: auto;
+  padding-bottom: clamp(0px, calc(8 * var(--grid-row-full)), 20vh) !important;
+}
+
+.markdown-embed-content
+  .markdown-preview-sizer.markdown-preview-sizer.markdown-preview-sizer.markdown-preview-sizer {
+  padding-bottom: 0 !important;
 }
 
 /** Display element styles ------------------------------------------------------------------- **/
 
 /** Note titles. */
 
+.markdown-rendered .inline-title {
+  letter-spacing: 0.5px;
+  text-align: center;
+  text-wrap: balance;
+  padding: 0;
+
+  --round-up-as-px: 0.5px;
+  --shrink-as-px: 0.3334px;
+  --line-to-grid: calc(
+    (
+        1em * var(--inline-title-line-height) / var(--int-grid-half) +
+          var(--round-up-as-px) - var(--shrink-as-px)
+      ) * var(--int) / var(--int) * var(--int-grid-half)
+  );
+  line-height: var(--line-to-grid);
+}
+
+/* We can't do fancier container queries than this. Yet. */
 .markdown-rendered .mod-header {
   container-type: inline-size;
   container-name: mod-header;
@@ -358,7 +441,9 @@ body>div.app-container.app-container {
 
 @container mod-header (max-width: 400px) {
   .inline-title {
-    --inline-title-size: var(--typo-title-compact-em);
+    --inline-title-size: calc(
+      1.5 * var(--typo-body-em) * var(--int) / var(--int)
+    );
   }
 
   .metadata-content {
@@ -366,103 +451,91 @@ body>div.app-container.app-container {
   }
 }
 
-.markdown-rendered .inline-title {
-  --round-up-as-px: 0.5px;
-  --shrink-as-px:   0.3334px;
-  --line-to-grid:   calc(1em * var(--inline-title-line-height) / var(--int-grid-half) + var(--round-up-as-px) - var(--shrink-as-px));
-
-  line-height:    calc(var(--line-to-grid) * var(--int) / var(--int) * var(--int-grid-half));
-  letter-spacing: 0.5px;
-  text-align:     center;
-  text-wrap:      balance;
-}
-
 /** Headings. */
-
-/* This is just CodeMirror's structure - a bunch of sequential <div>s. */
-/* Without the Contextual Typography plugin, we check what's in each:  */
 
 .markdown-rendered {
   & :has(> h1) {
     --h-size: var(--h1-size);
-    --h-lead: var(--h1-leading-as-px);
     --h-rows: var(--typo-h1-rows);
     --h-mult: var(--typo-h1-number);
   }
 
   & :has(> h2) {
     --h-size: var(--h2-size);
-    --h-lead: var(--h2-leading-as-px);
     --h-rows: var(--typo-h2-rows);
     --h-mult: var(--typo-h2-number);
   }
 
   & :has(> h3) {
     --h-size: var(--h3-size);
-    --h-lead: var(--h3-leading-as-px);
     --h-rows: var(--typo-h3-rows);
     --h-mult: var(--typo-h3-number);
   }
 
   & :has(> h4) {
     --h-size: var(--h4-size);
-    --h-lead: var(--h4-leading-as-px);
     --h-rows: var(--typo-h4-rows);
     --h-mult: var(--typo-h4-number);
   }
 
   & :has(> h5) {
     --h-size: var(--h5-size);
-    --h-lead: var(--h5-leading-as-px);
     --h-rows: var(--typo-h5-rows);
     --h-mult: var(--typo-h5-number);
   }
 
   & :has(> h6) {
     --h-size: var(--h6-size);
-    --h-lead: var(--h6-leading-as-px);
     --h-rows: var(--typo-h6-rows);
     --h-mult: var(--typo-h6-number);
   }
 }
 
-.markdown-preview-section >div> :is(h1, h2, h3, h4, h5, h6) {
+.markdown-preview-section > div > :is(h1, h2, h3, h4, h5, h6) {
   font-size: var(--h-size);
-  text-wrap: balance;
 
+  --int-h: calc(var(--h-mult) * var(--int-em) * var(--int) / var(--int));
   /* I won't make you measure + dimension your heading fonts. I just don't care. So, we guess. */
-  --int-h: calc(var(--h-mult) * var(--int-body) * var(--int) / var(--int));
-  --h-ex:  calc(-0.005 * var(--int-h) * var(--int-h) + 0.75 * var(--int-h) - 1.5);
+  /* And this is a pretty bad guess, probably: */
+  --h-ex: calc(
+    -0.005 * var(--int-h) * var(--int-h) + 0.75 * var(--int-h) - 1.5
+  );
 
   /* Then, we "float" our headings based on this strange idea. */
   /* The float value is the extra weight given to --space-top as a proportion of --total-height: */
   --h-grid-float: calc(tan(var(--h-rows) / var(--typo-h1-rows)));
   --h-font-float: calc(var(--int-ex) / var(--h-ex));
-  --h-float:      calc(var(--h-grid-float) * var(--h-font-float));
+  --h-float: calc(var(--h-grid-float) * var(--h-font-float));
 
   /* Finally, we calculate the space to set around the heading. */
-  --total-height: calc((var(--h-size) / var(--int-grid-half) + var(--h-lead)) * var(--int) / var(--int) * var(--int-grid-half));
+  --total-height: calc(
+    (var(--h-size) / var(--int-grid-half) + var(--h-rows) * 1px) * var(--int) /
+      var(--int) * var(--int-grid-half)
+  );
   --space-height: calc(var(--total-height) - var(--h-size));
   /* The -bottom and -top are not divided evenly. Extra weight is given to the -top. */
   --space-bottom: max(
     0px,
     (var(--space-height) / (2 + var(--h-float))) * var(--int) / var(--int)
- );
+  );
   --space-top: calc(var(--space-height) - var(--space-bottom));
 
   /* We need to be fancy with the --space-bottom property. So we copy it. */
-  --sb:        var(--space-bottom);
+  --sb: var(--space-bottom);
 
   /* And we need an alternate value for when two headings are adjacent to each other. */
-  /* Again, subtracting half a pixel works like rounding down, so:                    */
-  --sb-adjacent: max(0px, (var(--space-bottom) / var(--int-grid-half) - 0.5px) * var(--int-grid-half));
+  /* Again, subtracting half a pixel works like rounding down, so: */
+  --sb-adjacent: max(
+    0px,
+    (var(--space-bottom) / var(--int-grid-half) - 0.5px) * var(--int-grid-half)
+  );
 
-  margin-top:     calc(var(--typo-h-margin) * var(--space-top));
-  margin-bottom:  calc(var(--typo-h-margin) * var(--sb));
-  padding-top:    calc(var(--typo-h-padded) * var(--space-top));
+  margin-top: calc(var(--typo-h-margin) * var(--space-top));
+  margin-bottom: calc(var(--typo-h-margin) * var(--sb));
+  padding-top: calc(var(--typo-h-padded) * var(--space-top));
   padding-bottom: calc(var(--typo-h-padded) * var(--sb));
 
-  /* New Obsidian variables mucking things up, per usual, so: */
+  /* New Obsidian variables mucking things up, per usual. */
   --heading-spacing: calc(var(--typo-h-margin) * var(--space-top));
 
   /* You can use empty headings to end a fold region. Occasionally useful, but needs suppression: */
@@ -471,7 +544,7 @@ body>div.app-container.app-container {
   }
 
   /* And the fold indicator doesn't clearly show when it's actually clickable. So: */
-  &>.heading-collapse-indicator:hover>.svg-icon {
+  & > .heading-collapse-indicator:hover > .svg-icon {
     color: var(--text-accent);
   }
 }
@@ -484,11 +557,21 @@ body>div.app-container.app-container {
 /* They only do this if there's a complete half-row to remove. Otherwise, they are unchanged. */
 /* Also, the margin-spaced headings already collapse together neatly so do not need this. */
 
-.markdown-preview-section>div:has(+div>h2:not([data-heading=""], [data-heading^="%%"]))>h1,
-.markdown-preview-section>div:has(+div>h3:not([data-heading=""], [data-heading^="%%"]))>:is(h1, h2),
-.markdown-preview-section>div:has(+div>h4:not([data-heading=""], [data-heading^="%%"]))>:is(h1, h2, h3),
-.markdown-preview-section>div:has(+div>h5:not([data-heading=""], [data-heading^="%%"]))>:is(h1, h2, h3, h4),
-.markdown-preview-section>div:has(+div>h6:not([data-heading=""], [data-heading^="%%"]))>:is(h1, h2, h3, h4, h5) {
+.markdown-preview-section
+  > div:has(+ div > h2:not([data-heading=""], [data-heading^="%%"]))
+  > h1,
+.markdown-preview-section
+  > div:has(+ div > h3:not([data-heading=""], [data-heading^="%%"]))
+  > :is(h1, h2),
+.markdown-preview-section
+  > div:has(+ div > h4:not([data-heading=""], [data-heading^="%%"]))
+  > :is(h1, h2, h3),
+.markdown-preview-section
+  > div:has(+ div > h5:not([data-heading=""], [data-heading^="%%"]))
+  > :is(h1, h2, h3, h4),
+.markdown-preview-section
+  > div:has(+ div > h6:not([data-heading=""], [data-heading^="%%"]))
+  > :is(h1, h2, h3, h4, h5) {
   padding-bottom: calc(var(--typo-h-padded) * var(--sb-adjacent));
 }
 
@@ -496,9 +579,8 @@ body>div.app-container.app-container {
 
 /* Following a title */
 
-/* .meta-description + h1 */
-.markdown-rendered div:has(> p.meta-description)+div:has(h1) {
-  margin-top: calc(-1 * var(--grid-row-half));
+.mod-header+div:has(>.frontmatter)+div>p {
+  margin-top: calc(var(--text-before-first) * var(--text-before-size) + var(--grid-row-full));
 }
 
 /* Following a header */
@@ -506,104 +588,119 @@ body>div.app-container.app-container {
 /* .subtitle */
 
 /* The heading loses its --space-bottom (this is why we needed --sb). */
-.markdown-rendered div:has(+ div > p.subtitle)> :is(h1, h2, h3, h4, h5, h6) {
+.markdown-rendered div:has(+ div > p.subtitle) > :is(h1, h2, h3, h4, h5, h6) {
   --sb: 0px;
 }
 
 /* And we have to recompute everything about the heading. So: */
-.markdown-rendered :has(> h1)+div>p.subtitle {
+.markdown-rendered :has(> h1) + div > p.subtitle {
   --h-size: var(--h1-size);
-  --h-lead: var(--h1-leading-as-px);
   --h-rows: var(--typo-h1-rows);
   --h-mult: var(--typo-h1-number);
 }
 
-.markdown-rendered :has(> h2)+div>p.subtitle {
+.markdown-rendered :has(> h2) + div > p.subtitle {
   --h-size: var(--h2-size);
-  --h-lead: var(--h2-leading-as-px);
   --h-rows: var(--typo-h2-rows);
   --h-mult: var(--typo-h2-number);
 }
 
-.markdown-rendered :has(> h3)+div>p.subtitle {
+.markdown-rendered :has(> h3) + div > p.subtitle {
   --h-size: var(--h3-size);
-  --h-lead: var(--h3-leading-as-px);
   --h-rows: var(--typo-h3-rows);
   --h-mult: var(--typo-h3-number);
 }
 
-.markdown-rendered :has(> h4)+div>p.subtitle {
+.markdown-rendered :has(> h4) + div > p.subtitle {
   --h-size: var(--h4-size);
-  --h-lead: var(--h4-leading-as-px);
   --h-rows: var(--typo-h4-rows);
   --h-mult: var(--typo-h4-number);
 }
 
-.markdown-rendered :has(> h5)+div>p.subtitle {
+.markdown-rendered :has(> h5) + div > p.subtitle {
   --h-size: var(--h5-size);
-  --h-lead: var(--h5-leading-as-px);
   --h-rows: var(--typo-h5-rows);
   --h-mult: var(--typo-h5-number);
 }
 
-.markdown-rendered :has(> h6)+div>p.subtitle {
+.markdown-rendered :has(> h6) + div > p.subtitle {
   --h-size: var(--h6-size);
-  --h-lead: var(--h6-leading-as-px);
   --h-rows: var(--typo-h6-rows);
   --h-mult: var(--typo-h6-number);
 }
 
-.markdown-rendered div:has(> h1, > h2, > h3, > h4, > h5, > h6)+div:has(> p.subtitle) {
-
-  &>p.subtitle.subtitle {
-    color:       var(--text-muted);
-    font-size:   var(--typo-compact-em);
-    font-style:  italic;
+.markdown-rendered
+  div:has(> :is(h1, h2, h3, h4, h5, h6))
+  + div:has(> p.subtitle) {
+  & > p.subtitle.subtitle {
+    color: var(--text-muted);
+    font-size: var(--typo-compact-em);
+    font-style: italic;
     text-indent: 0;
-    text-wrap:   balance;
 
     /* The heading values get recalculated, first. */
-    --int-h:        calc(var(--h-mult) * var(--int-body));
-    --h-ex:         calc(-0.005 * var(--int-h) * var(--int-h) + 0.75 * var(--int-h) - 1.5);
+    --int-h: calc(var(--h-mult) * var(--int-em));
+    --h-ex: calc(
+      -0.005 * var(--int-h) * var(--int-h) + 0.75 * var(--int-h) - 1.5
+    );
     --h-grid-float: calc(tan(var(--h-rows) / var(--typo-h1-rows)));
     --h-font-float: calc(var(--int-ex) / var(--h-ex));
-    --h-float:      calc(var(--h-grid-float) * var(--h-font-float));
-    --total-height: calc((var(--h-size) / var(--int-grid-half) + var(--h-lead)) * var(--int) / var(--int) * var(--int-grid-half));
+    --h-float: calc(var(--h-grid-float) * var(--h-font-float));
+    --total-height: calc(
+      (var(--h-size) / var(--int-grid-half) + var(--h-rows) * 1px) * var(--int) /
+        var(--int) * var(--int-grid-half)
+    );
     --space-height: calc(var(--total-height) - var(--h-size));
     --space-bottom: max(
       0px,
       var(--space-height) / (2 + var(--h-float)) * var(--int) / var(--int)
     );
-    --space-top:    calc(var(--space-height) - var(--space-bottom));
+    --space-top: calc(var(--space-height) - var(--space-bottom));
 
     /* Add a new set of margins around the subtitle. */
     /* We no longer want to be floaty, but we have a (probably) non-grid-sized space to fit into. */
     /* Reuse the h-float as the weighted area to assign to the bottom margin, then round to the grid. */
-    --ratio:   calc((1 + var(--h-float)) / (2 + var(--h-float)));
-    --sub-bot: calc(var(--space-bottom) * var(--ratio) / var(--int-grid-half) * var(--int) / var(--int) * var(--int-grid-half));
+    --proportion: calc((1 + var(--h-float)) / (2 + var(--h-float)));
+    --sub-bot: calc(
+      var(--space-bottom) * var(--proportion) / var(--int-grid-half) *
+        var(--int) / var(--int) * var(--int-grid-half)
+    );
     --sub-top: calc(var(--space-bottom) - var(--sub-bot));
 
-    margin-top:    var(--sub-top);
+    margin-top: var(--sub-top);
     margin-bottom: var(--sub-bot);
 
     /* The next p after a heading + subtitle needs to act like the first para, again. */
-    &+div>p:not(.subtitle) {
-      text-indent: var(--text-indent-first);
-      margin-top:  var(--text-before-first);
+    & + div > p:not(.subtitle) {
+      margin: calc(var(--text-before-size) * var(--text-before-first)) 0;
+      text-indent: calc(var(--text-indent-size) * var(--text-indent-first));
     }
   }
 }
+
+/* Collection elements */
+
+.markdown-rendered
+  div:has(> :is(h1, h2, h3, h4, h5, h6))
+  + div
+  > :is(table, blockquote, ol, ul, dl) {
+  margin-top: var(--text-before-first);
+}
+
+/* Preceding a header */
+
 
 /** Body text styles -------------------------------------------------------------------------- **/
 
 /** Regular typographic elements **/
 
 /* Everything else is set in app.css via custom properties. */
-
-.markdown-rendered p:is(p) {
-  margin:      var(--grid-row-half) 0;
-  text-indent: var(--text-indent);
-  font-weight: var(--typo-body-weight);
+.markdown-rendered
+  div:has(> :is(h1, h2, h3, h4, h5, h6, hr, br, table))
+  + div
+  > p:is(p) {
+  margin-top: calc(var(--text-before-size) * var(--text-before-first));
+  text-indent: calc(var(--text-indent-size) * var(--text-indent-first));
 }
 
 /* This is usually fine. */
@@ -614,10 +711,10 @@ body>div.app-container.app-container {
 
 /* Line breaks are half-row in height, for tuning the layout in smaller increments. */
 .markdown-rendered br {
-  height:      var(--grid-row-half);
-  font-size:   var(--grid-row-half);
+  height: var(--grid-row-half);
+  font-size: var(--grid-row-half);
   line-height: var(--grid-row-half);
-  width:       100%;
+  width: 100%;
 }
 
 /** Larger element styles --------------------------------------------------------------------- **/
@@ -625,24 +722,23 @@ body>div.app-container.app-container {
 /** Lists **/
 
 .markdown-rendered {
-
   /** All list types **/
-  &>div :is(ol, ul, dl) {
+  & > div :is(ol, ul, dl) {
     padding-block: 0;
   }
 
   /** All list items **/
   & li,
   & dd {
-    line-height:      var(--grid-row-full);
-    padding-left:     calc(var(--list-indent-item) * var(--int) / var(--int));
-    font-weight:      var(--typo-body-weight);
+    line-height: var(--grid-row-full);
+    padding-left: calc(var(--list-indent-item) * var(--int) / var(--int));
+    font-weight: var(--typo-body-weight);
     margin-block-end: 0;
 
     &::marker,
     & .list-bullet::before,
     & .list-bullet::after {
-      color:            var(--text-normal);
+      color: var(--text-normal);
       background-color: var(--text-normal);
     }
   }
@@ -654,25 +750,27 @@ body>div.app-container.app-container {
     & li {
       & .list-collapse-indicator {
         margin-left: calc(-2ch - var(--list-indent));
-        padding:     0;
+        padding: 0;
       }
 
-      &> :is(ol, ul)::before {
-        left: calc(-1 * var(--list-indent) + var(--list-indent-item) + var(--indentation-guide-width)) !important;
+      & > :is(ol, ul)::before {
+        left: calc(
+          -1 * var(--list-indent) + var(--list-indent-item) + var(--indentation-guide-width)
+        ) !important;
       }
     }
   }
 
-  & ol>li>ol {
+  & ol > li > ol {
     list-style-type: lower-alpha;
 
-    &>li>ol {
+    & > li > ol {
       list-style-type: lower-roman;
 
-      &>li>ol {
+      & > li > ol {
         list-style-type: upper-alpha;
 
-        &>li>ol {
+        & > li > ol {
           list-style-type: upper-roman;
         }
       }
@@ -681,9 +779,14 @@ body>div.app-container.app-container {
 
   /** Unordered lists **/
   & ul {
-    --l-pad: calc((var(--list-indent-half) + var(--list-indent-item) - var(--list-bullet-size) / 2 + 0.5px) * var(--int) / var(--int));
+    --l-pad: calc(
+      (
+          var(--list-indent-half) + var(--list-indent-item) -
+            var(--list-bullet-size) / 2 + 0.5px
+        ) * var(--int) / var(--int)
+    );
 
-    margin:       var(--grid-row-half) 0;
+    margin: var(--grid-row-half) 0;
     padding-left: var(--l-pad);
 
     & li {
@@ -692,85 +795,133 @@ body>div.app-container.app-container {
 
       & .list-collapse-indicator {
         margin-left: calc(-1 * var(--list-indent));
-        padding:     0;
+        padding: 0;
       }
 
-      &> :is(ol, ul)::before {
-        left: calc(-1 * var(--list-indent-item) - var(--list-indent) / 2 + var(--list-bullet-size) / 2 + var(--indentation-guide-width)) !important;
+      & > :is(ol, ul)::before {
+        left: calc(
+          -1 * var(--list-indent-item) - var(--list-indent) / 2 + var(
+              --list-bullet-size
+            ) / 2 + var(--indentation-guide-width)
+        ) !important;
       }
     }
   }
 
-  & ul.has-list-bullet >li> .list-bullet {
-    /* obsidian-stop-using-em-for-horizontal-units challenge, difficulty level: impossible */
+  & ul.has-list-bullet > li > .list-bullet {
+    /* stop-using-em-for-horizontal-units challenge, difficulty level: impossible */
     margin-left: -2ch;
-  }
-
-  & :is(ol, ul) >li> :is(ol, ul) {
-    margin-top:    0;
-    margin-bottom: 0;
   }
 }
 
 /** Nested lists and indentation guides **/
 
-/* margin-top: calc((var(--grid-row-full) / 2 - var(--typo-body-mean) - var(--typo-body-ascender-offset)) * var(--int) / var(--int));
-margin-bottom: calc((var(--grid-row-full) / 2 + var(--typo-body-base) - var(--typo-body-descender-offset)) * var(--int) / var(--int)); */
+.markdown-rendered.markdown-rendered :is(ol, ul) > li > :is(ol, ul) {
+  margin-block: 0;
+  padding-block: 0;
+}
+
+/* Replace Obsidian's indentation guides with our own: */
+/* We're also turning this off when the ITS 'dnd' theme is on */
+
+body:not(.dnd) .markdown-rendered.show-indentation-guide li:has(> :is(ol, ul)) {
+  & > :is(ol, ul)::before {
+    content: none;
+  }
+
+  &::before {
+    content: " ";
+    display: inline;
+    position: absolute;
+    width: 0px;
+    border-left: 1px solid var(--indentation-guide-color);
+    top: calc(var(--grid-row-half) + 1ex - var(--typo-body-base));
+    bottom: calc(-1 * var(--typo-body-base));
+    left: calc(
+      var(--list-indent-item) - var(--list-indent) / 2 -
+        var(--indentation-guide-width) * 2 + 0.5px
+    );
+  }
+}
 
 /** Elements within lists **/
 
-/* Elements with a half-grid margin add the margin to the whole list: */
-.markdown-rendered :is(ol, ul):has(>li>*+:not(
-    p:only-of-type,
-    dl,
-    ol,
-    ul,
-    div,
-    span,
-    a,
-    em,
-    i,
-    strong,
-    b,
-    aside,
-    mark,
-    cite,
-    sub,
-    sup,
-    abbr,
-    area,
-    br,
-    button,
-    code,
-    pre,
-    del,
-    dfn,
-    ins,
-    kbd)
-  )>li {
-  margin-bottom: var(--grid-row-half);
+/* Elements with a half-grid padding add the pad to the whole list. */
+/* The last element uses margin, instead, to keep the indentation guides the correct size. */
+
+.markdown-rendered
+  :is(ol, ul):has(
+    > li
+      > *
+      + :not(
+        p:only-of-type,
+        dl,
+        ol,
+        ul,
+        div,
+        span,
+        a,
+        em,
+        i,
+        strong,
+        b,
+        input,
+        aside,
+        mark,
+        cite,
+        sub,
+        sup,
+        abbr,
+        br,
+        button,
+        code,
+        pre,
+        del,
+        dfn,
+        ins,
+        kbd
+      )
+  ) {
+  & > li {
+    padding-bottom: var(--grid-row-half);
+  }
+
+  & > li:last-of-type {
+    padding-bottom: 0;
+    margin-bottom: var(--grid-row-half);
+  }
 }
 
-.markdown-rendered :is(ol, ul) >li> p:has(+ :is(ol, ul):not(:last-child)) {
+/* A more accurate selector than this might be too ridiculous */
+.markdown-rendered :is(ol, ul) > li > p:has(+ :is(ol, ul):not(:last-child)) {
   margin-bottom: var(--grid-row-half);
+
+  & + :is(ol, ul) + p {
+    margin-top: var(--grid-row-half);
+  }
 }
 
 /** Tables **/
 
 /** Blockquotes **/
-
-/* Tricky: Set up normal blockquotes on the half-grid as well as you can. */
-/* This requires subtracting the border width from the margin + padding. */
-/* Using margin to compensate can lead to incorrect grid spacing, in some cases. */
-/* But it's better than subtracting e.g. a full 4px border from just the padding. */
-
+/* Tricky. Set up normal blockquotes on the half-grid as well as you can. */
+/* This requires subtracting the border out of the margin and padding. */
+/* Using margin to compensate can lead to incorrect grid spacing, actually. */
+/* But it's better than taking e.g. all of a 4px border out of the padding. */
 .markdown-rendered blockquote {
-  border:        var(--blockquote-border-thickness) solid var(--blockquote-border-color);
-  border-radius: 0px;
+  --border-half: calc(
+    var(--blockquote-border-thickness) / 2 * var(--int) / var(--int)
+  );
 
-  --border-half: calc(var(--blockquote-border-thickness) / 2 * var(--int) / var(--int));
-  margin:        calc(var(--grid-row-half) - var(--border-half)) 0;
-  padding:       calc(var(--grid-row-half) - var(--blockquote-border-thickness) + var(--border-half)) 1.75ch;
+  margin: calc(var(--grid-row-half) - var(--border-half)) 0;
+  padding: calc(
+      var(--grid-row-half) - var(--blockquote-border-thickness) +
+        var(--border-half)
+    )
+    1.75ch;
+  border: var(--blockquote-border-thickness) solid
+    var(--blockquote-border-color);
+  border-radius: 0px;
 }
 
 .markdown-rendered blockquote p {
@@ -779,54 +930,64 @@ margin-bottom: calc((var(--grid-row-full) / 2 + var(--typo-body-base) - var(--ty
 
 /** Adjacent elements **/
 
-p+p,
-.markdown-rendered div:has(> p)+div>p,
-.markdown-rendered div:has(> p)+ :empty+div>p {
-  margin-top:  var(--text-before);
-  text-indent: var(--text-indent);
+p + p,
+.markdown-rendered div:has(> p) + div > p,
+.markdown-rendered div:has(> p) + :empty + div > p {
+  margin-top: calc(var(--text-before-size) * var(--text-before));
+  text-indent: calc(var(--text-indent-size) * var(--text-indent));
 }
 
 /** Embed styles ------------------------------------------------------------------------------ **/
 
-/* This treats all embeds as "naked" transcludes. That may not be what you're after. */
-
-.markdown-preview-section >div> :has(> span.internal-embed) {
+.markdown-preview-section > div > *:has(> span.internal-embed) {
   --file-margins: 0px;
-  margin:  0;
+
+  margin: 0;
   padding: 0;
 
-  & .markdown-embed-title,
+  & .markdown-embed-title {
+    display: none;
+  }
+
   & .markdown-embed-link {
     display: none;
   }
 
+  /* I want naked embeds, almost always, so: */
+
   & span.markdown-embed,
   & .markdown-preview-view {
-    margin:       0;
-    padding:      0;
+    margin: 0;
+    padding: 0;
     border-width: 0;
   }
 
   & .markdown-preview-section {
-    margin-left:  0;
+    margin-left: 0;
     margin-right: 0;
-    max-width:    100%;
-    min-height:   100% !important;
+    max-width: 100%;
+    min-height: 100% !important;
 
-    &>.mod-header {
+    /* Remove inline titles. */
+    & > .mod-header {
       display: none;
     }
 
-    & section.footnotes>ol {
-      background-color: var(--background-secondary-alt);
-      padding-block:    var(--grid-row-half);
-      border-radius:    var(--grid-row-half);
+    /* Okay but like, div>p is *always* p:first-child */
+    & p:first-child {
+      margin-top: var(--grid-row-half);
+    }
 
-      &>li:first-of-type {
+    & section.footnotes > ol {
+      background-color: var(--background-secondary-alt);
+      padding-block: var(--grid-row-half);
+      border-radius: var(--grid-row-half);
+
+      & > li:first-of-type {
         margin-top: 0;
       }
 
-      &>li:last-of-type {
+      & > li:last-of-type {
         margin-bottom: 0;
       }
     }
@@ -838,13 +999,13 @@ p+p,
 .markdown-rendered section.footnotes {
   margin-top: calc(2 * var(--grid-row-full));
 
-  &>ol {
+  & > ol {
     padding-left: calc(var(--list-indent) - var(--list-indent-item));
 
-    &>li {
+    & > li {
       padding-left: var(--list-indent-item);
-      line-height:  var(--grid-row-full);
-      margin:       var(--grid-row-full) 0;
+      line-height: var(--grid-row-full);
+      margin: var(--grid-row-half) 0;
 
       &::marker {
         color: var(--text-normal);
@@ -853,35 +1014,88 @@ p+p,
   }
 
   & code {
-    font-size:   var(--font-smallest);
+    font-size: var(--font-smallest);
     font-weight: 500;
   }
 
   /* This thing is just tiny. Gotta do something about it. */
   & a.footnote-backref {
     --embiggen-for-clicken: var(--grid-row-half);
-
-    padding:     0 var(--embiggen-for-clicken) var(--embiggen-for-clicken) var(--embiggen-for-clicken);
+    padding: 0 var(--embiggen-for-clicken) var(--embiggen-for-clicken)
+      var(--embiggen-for-clicken);
     margin-left: calc(-1 * var(--embiggen-for-clicken));
   }
 
   /* Reposition the back-reference link in the bottom-right corner of blockquotes. */
-  & li[data-footnote-id]>blockquote+a.footnote-backref {
+  & li[data-footnote-id] > blockquote + a.footnote-backref {
     float: right;
     clear: right;
     right: calc(-1 * var(--list-indent));
-    top:   calc(-2 * var(--grid-row-full));
+    top: calc(-2 * var(--grid-row-full));
   }
 
   /* Reposition the back-reference link following a sub-list. */
-  & li[data-footnote-id]>:is(ol, ul)+a.footnote-backref {
+  & li[data-footnote-id] > :is(ol, ul) + a.footnote-backref {
     float: right;
     clear: right;
-    top:   calc(-1 * var(--grid-row-full));
-    left:  calc(2 * var(--embiggen-for-clicken));
+    top: calc(-1 * var(--grid-row-full));
+    left: calc(2 * var(--embiggen-for-clicken));
   }
 }
 
 /** Callout classes --------------------------------------------------------------------------- **/
 
+.callout[data-callout="layout-columns"] {
+  --column-count: 2;
+
+  & > .callout-title {
+    display: none !important;
+  }
+
+  & > .callout-content {
+    columns: 2;
+    column-fill: balance;
+
+    & > :first-child {
+      margin-top: 0;
+    }
+  }
+}
+
 /** Element classes --------------------------------------------------------------------------- **/
+/* Not sure what else to call them. They are elements, with classes added. */
+
+/* Sometimes, you need to put words on a horizontal line break. This serves that purpose. */
+div:has(> p.inline-break) {
+  overflow: hidden;
+  margin: var(--grid-row-full) 0;
+
+  & > p.inline-break {
+    display: inline;
+    position: relative;
+
+    --inline-break-offset: 1000px;
+
+    &::after,
+    &::before {
+      content: "";
+      position: absolute;
+      margin-top: calc(
+        var(--grid-row-half) + var(--typo-body-base) / 2 + 0.5px
+      );
+      width: var(--inline-break-offset);
+      right: calc(-1ch - var(--inline-break-offset));
+      height: 0;
+      z-index: 1;
+      background-color: transparent;
+
+      /* border-bottom-width: var(--hr-thickness); */
+      border-bottom: 1px solid var(--text-normal, --hr-color);
+    }
+
+    &::before {
+      right: unset;
+      left: calc(-1ch - var(--inline-break-offset));
+    }
+  }
+}
