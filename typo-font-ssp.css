@@ -1,75 +1,71 @@
-/* Typographic variables for different body fonts. */
-
-body>div:not(.titlebar) {
-  /** Body text **/
+body > .app-container {
+  /** Body font **/
+  /* Selected values */
   --typo-body-font: "Source Serif Pro";
+  --typo-body-weight: 400;
+  --typo-body-line: 26px; /* fallback line height, as <px> */
+
+  /* Measured values */
   --ch-correction: 1;
-  /* New Obsidian overrides. Love doing this. Love it */
-  --font-text-override: var(--typo-body-font);
-  --font-text: var(--font-text-override), var(--font-text-theme), var(--font-interface);
 
-  --typo-body-weight: 410;
-  --typo-body-em: 17px;
-  --typo-body-line: 26px;
-  --typo-body-ascent: 14px;
-  --typo-body-ascender: 12px;
-  --typo-body-descent: 10px;
+  /* Dimensioned as <number> */
+  --int-em:   17;
+  --int-ex:    8;
+  --int-base: -5; /* from middle-em to baseline */
+  --int-cap:  11;
+
+  /* Dimensioned as <px> */
+  --typo-body-em:   calc(1px * var(--int-em));
+  --typo-body-ex:   calc(1px * var(--int-ex));
+  --typo-body-base: calc(1px * var(--int-base));
+  --typo-body-cap:  calc(1px * var(--int-cap));
+
+  --typo-body-ascent:     14px;
+  --typo-body-ascender:   12px;
+  --typo-body-descent:     6px;
   --typo-body-descender: 5.5px;
-  --typo-body-ex: 8px;
-  --typo-body-cap: 11px;
-  /* The y-distance from the mid-em to the baseline: */
-  --typo-body-base: -5px;
-  /* As integer: */
-  --int-body: 17;
-  --int-ex: 8;
-  --int-cap: 11;
-  --int-base: -5;
-  /* ...derived: */
-  --typo-body-mean: calc(var(--typo-body-base) + var(--typo-body-ex));
-  --typo-body-em-offset: calc(--typo-body-mean / 2);
-  --typo-body-ascender-offset: calc(
-    var(--typo-body-ascender) - var(--typo-body-ex)
-  );
-  --typo-body-descender-offset: var(--typo-body-descender);
-  --typo-body-asc-desc-ratio: calc(
-    var(--typo-ascender-offset) / var(--typo-descender-offset)
-  );
-  --typo-body-em-line-ratio: calc(var(--typo-body-em) / var(--typo-body-line));
 
-  /** Compact text **/
-  --typo-compact-font: var(--typo-body-font);
-  --typo-compact-weight: 400;
-  --typo-compact-em: 15px;
-  --typo-compact-line: 26px;
-  --typo-compact-ascent: 12px;
-  --typo-compact-ascender: 11px;
-  --typo-compact-descent: 10px;
-  --typo-compact-descender: 4.5px;
-  --typo-compact-ex: 7px;
+  /* Derived values */
+  --typo-body-mean:
+    calc(var(--typo-body-base) + var(--typo-body-ex));
+  --typo-body-ascender-offset:
+    calc(var(--typo-body-ascender) - var(--typo-body-ex));
+  --typo-body-asc-desc-ratio:
+    calc(var(--typo-ascender-offset) / var(--typo-descender));
+  --typo-body-em-line-ratio:
+    calc(var(--typo-body-em) / var(--typo-body-line));
+
+  /* Obsidian properties */
+  --font-text-override: var(--typo-body-font);
+  --font-text: var(--font-text-override),
+              var(--font-text-theme),
+              var(--font-interface);
+
+  /** Compact font **/
+  /* Selected values */
+  --typo-compact-font:   var(--typo-body-font);
+  --typo-compact-weight: var(--typo-body-weight);
+
+  /* Measured values */
+  /* Dimensioned as <px> */
+  --typo-compact-em:    15px;
+  --typo-compact-ex:     7px;
+  --typo-compact-base:  -5px;
   --typo-compact-cap: 10.5px;
-  /* The y-distance from the mid-em to the baseline: */
-  --typo-compact-base: -5px;
-  /* ...derived: */
-  --typo-compact-mean: calc(var(--typo-body-base) + var(--typo-body-ex));
-  --typo-compact-em-offset: calc(--typo-compact-mean / 2);
-  --typo-compact-ascender-offset: calc(
-    var(--typo-compact-ascender) - var(--typo-compact-ex)
-  );
-  --typo-compact-descender-offset: var(--typo-compact-descender);
-  --typo-compact-asc-desc-ratio: calc(
-    var(--typo-ascender-offset) / var(--typo-descender-offset)
-  );
-  --typo-compact-em-line-ratio: calc(
-    var(--typo-compact-em) / var(--typo-compact-line)
-  );
-}
 
-/* Other fixes */
+  --typo-compact-ascent:     12px;
+  --typo-compact-ascender:   11px;
+  --typo-compact-descent:     5px;
+  --typo-compact-descender: 4.5px;
 
-.metadata-property-key-input[aria-label="Confidence" i] {
-  --el-width: 11.5ch;
-}
-
-.metadata-property-key-input[aria-label="Importance" i] {
-  --el-width: 12ch;
+  /* Derived values */
+  --typo-compact-mean:
+    calc(var(--typo-compact-base) + var(--typo-compact-ex));
+  --typo-compact-ascender-offset:
+    calc(var(--typo-compact-ascender) - var(--typo-compact-ex));
+  --typo-compact-asc-desc-ratio:
+    calc(var(--typo-compact-ascender-offset)
+      / var(--typo-compact-descender));
+  --typo-compact-em-line-ratio:
+    calc(var(--typo-compact-em) / var(--typo-compact-line));
 }
