@@ -1,5 +1,7 @@
+/** ------------------------------------------------------------------------------------------- **/
 /** -- typographic.css -------------------------------------------------------- by -- @efrec -- **/
 /** -- Licensed under the MIT/X11 License (http://opensource.org/licenses/MIT) -------- 2024 -- **/
+/** ------------------------------------------------------------------------------------------- **/
 
 /*
 This is the absurd undertaking to round everything to an exact pixel on a screen -- more or less.
@@ -9,27 +11,38 @@ changes to `display` attributes. Instead, everything is dimensioned to the grid 
 browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--int) / var(--int)`.
 */
 
+/** ------------------------------------------------------------------------------------------- **/
 /** Font face imports ------------------------------------------------------------------------- **/
 
+/** ------------------------------------------------------------------------------------------- **/
 /** Media Recommendations --------------------------------------------------------------------- **/
 
-/** Base CSS variables ------------------------------------------------------------------------ **/
+/** ------------------------------------------------------------------------------------------- **/
+/** Root CSS variables ------------------------------------------------------------------------ **/
 
 :root {
-  /** This works by underflowing <number>s to fake <integers>s:                                 **/
-  /*  number-to-int: calc(25.4 * var(--int) / var(--int));                                       */
-  /*  n-to-interval: calc(25.4 / var(--interval) * var(--int) / var(--int) * var(--interval);    */
-
+  /** -- Calculation custom properties -------------------------------------------------------- **/
+  /* This works by underflowing <number>s to fake <integers>s:                                   */
+  /*   number-to-int: calc(25.4 * var(--int) / var(--int));                                      */
+  /*   n-to-interval: calc(25.4 / var(--interval) * var(--int) / var(--int) * var(--interval);   */
+  
   --int: 4.9406564584124654e-324;
-  --r-down:     -0.5;
-  --r-up:        0.5;
-  --decrement:    -1;
-  --increment:     1;
+  --r-down:    -0.5;
+  --r-up:       0.5;
+  --decrement:   -1;
+  --increment:    1;
 
-  /** Document dimensions (ideal/target/ranges) **/
+  /* Fallback guesses, until we later dimension a font. These are <px>, dimensioned as <number>. */
 
-  /* Our "ideal" dimensions are in units of <ch>, but first we need them as <number>s. */
-  /* They are used in later calculations that require them to be unitless. So we set them here: */
+  --int-em: 17;
+  --int-ex:  7;
+  
+  /** -- Base typographic properties ---------------------------------------------------------- **/
+
+  /* Configuration */
+
+  /* Our "ideal" dimensions are in units of <ch>, but first we dimension them as <number>s. */
+  /* They are used in later calculations that require them to be unitless. */
   --typo-ideal-line-number: 64;
   --typo-ideal-min-number:  30;
   --typo-ideal-max-number:  80;
@@ -45,6 +58,8 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
   /* The average character in normal writing isn't 100%-width but usually somewhat narrower. */
   /* When we add measurements for a new font, we set a new ch-correction value, too. */
   --typo-ch-correction: 0.98;
+
+  /* Intermediate values */
 
   /* Taken together, this gives a set of non-ideal line widths which are more attuned to our reality: */
   --typo-line-width-number: calc(
@@ -85,14 +100,14 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
     1 - (var(--typo-ideal-gmean) - var(--typo-line-min-w-number)) /
       var(--typo-line-max-w-number)
   );
-  --int-em: 17;
-  --int-ex: 7;
   --typo-height-ratio: calc((var(--int-ex) + 1) / var(--int-em));
   --typo-line-height-ratio: calc(
     var(--typo-width-ratio) * var(--typo-height-ratio)
   );
 
-  /* Finally, convert all these values to <ch>s and such, which is how they're used normally: */
+  /* Derived values */
+
+  /* Finally, convert all these values to <ch>s and such, as they're used normally: */
 
   --typo-ideal-line: calc(1ch * var(--typo-ideal-line-number));
   --typo-ideal-minimum: calc(1ch * var(--typo-ideal-min-number));
@@ -102,19 +117,21 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
   --typo-line-min-width: calc(1ch * var(--typo-line-min-w-number));
   --typo-line-max-width: calc(1ch * var(--typo-line-max-w-number));
 
-  /** Grid dimensions **/
+  /** -- Base grid properties ----------------------------------------------------------------- **/
   
   /* The universe has settled on this number, and so we will, too. */
   --typo-grid-columns: 12;
   
   /* We set some typical, nice grid values instead of calculating them, this time. */
   /* The grid is a half-baseline grid, so we need the full rows to be even counts. */
-  --grid-row-full: 26px;
-  --grid-row-half: 13px;
+
   --int-grid-full: 26;
   --int-grid-half: 13;
+
+  --grid-row-full: calc(1px * var(--int-grid-full));
+  --grid-row-half: calc(1px * var(--int-grid-half));
   
-  /** Basic layout **/
+  /** -- Base layout properties --------------------------------------------------------------- **/
 
   /* Dimensioned as <number> */
 
@@ -126,8 +143,11 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
   --text-before-first: 0;
   --typo-h-padded: 1;
   --typo-h-margin: 0;
+  --typo-h-chapters: 1;
+  --typo-h-exhausts: 1;
 
   /* In multiples of body font size: */
+
   --h-mod: 1.05;
   --typo-h6-number: 1;
   --typo-h5-number: calc(var(--h-mod) * var(--typo-h6-number));
@@ -142,19 +162,21 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
   );
 
   /* In increments of full-grid rows: */
+
   --typo-h-subtitle-rows: 1;
   --typo-li-rows: 1;
   --typo-table-header-rows: 1.5;
   --typo-table-rows: 1;
 
   /* In increments of half-grid rows: */
+
   /* todo: formulate these values */
-  --typo-h1-rows: calc(15 + 3 * var(--typo-h-margin));
-  --typo-h2-rows: calc( 8 + 2 * var(--typo-h-margin));
-  --typo-h3-rows: calc( 5 + 1 * var(--typo-h-margin));
-  --typo-h4-rows: 3;
-  --typo-h5-rows: 2;
-  --typo-h6-rows: 1;
+  --typo-h6-rows: calc(2 - 1 * var(--typo-h-exhausts));
+  --typo-h5-rows: calc(3 - 1 * var(--typo-h-exhausts));
+  --typo-h4-rows: calc(4 - 1 * var(--typo-h-exhausts));
+  --typo-h3-rows: calc(5 + 1 * var(--typo-h-chapters) - 1 * var(--typo-h-exhausts) + 1 * var(--typo-h-margin));
+  --typo-h2-rows: calc(7 + 1 * var(--typo-h-chapters) + 2 * var(--typo-h-margin));
+  --typo-h1-rows: calc(9 + 6 * var(--typo-h-chapters) + 3 * var(--typo-h-margin));
 
   /** Longform layout **/
 
@@ -168,10 +190,13 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
 
   --monotony-heading-margin: 1;
   --monotony-heading-padded: 0;
-  --monotony-p-before: 1;
-  --monotony-p-indent: 0;
+  --monotony-h-chapters: 1;
+  --monotony-h-exhausts: 1;
+  --monotony-p-before: 0;
+  --monotony-p-indent: 1;
   --monotony-p-before-first: 1;
-  --monotony-p-indent-first: 1;
+  --monotony-p-indent-first: 0;
+
   --monotony-heavy-lines: 5px;
   --monotony-medium-lines: 2px;
   --monotony-underline-position: under;
@@ -188,35 +213,40 @@ browser to lay out the rest correctly. Get used to seeing a bunch of `* var(--in
   /* I'm putting this here just to start pondering it and because it rounds out the section.  */
 
   --choppy-heading-margin: 0;
-  --choppy-heading-padded: 0;
+  --choppy-heading-padded: 1;
+  --choppy-h-chapters: 1;
+  --choppy-h-exhausts: 1;
   --choppy-p-before: 1;
   --choppy-p-indent: 0;
   --choppy-p-before-first: 0;
   --choppy-p-indent-first: 0;
-  --choppy-shrink-spacing: 0;
 
   /* in half-grid increments: */
-  --choppy-shrink-heading: 4;
+  --choppy-shrink-spacing: 0;
+  --choppy-shrink-heading: 1;
 }
 
+/** ------------------------------------------------------------------------------------------- **/
 /** Document body variables ------------------------------------------------------------------- **/
-
-/* Get a new grid. */
 
 body > div.app-container.app-container {
 
-  /** Measured fonts **/
+  /** Measured fonts properties --------------------------------------------------------------- **/
 
   /* Use one of the typo-font-*.css files for your body text and compact (small) text. */
+  /* These work like "font packs" that you can switch between via the Appearance menu. */
 
-  /** Non-measured fonts **/
+  /** Non-measured fonts properties ----------------------------------------------------------- **/
 
   --typo-title-font: Lora;
   --typo-h-font:     Lato;
 
-  /** Recalculate the grid based on the body font measurements **/
+  /** Recalculated grid properties ------------------------------------------------------------ **/
 
-  /* Derived from measured properties */
+  /* Derived from measured fonts properties */
+
+  /* Dimensioned as <number> */
+
   --typo-height-ratio:
     calc((var(--int-em) - var(--int-ex)) / var(--int-em));
   --typo-line-height-ratio:
@@ -229,9 +259,11 @@ body > div.app-container.app-container {
   );
   --int-grid-full: calc(2 * var(--int-grid-half));
 
-  /* Defining a column width independent of document width: */
+  /* Defining a constant column width, as independent of actual document width: */
   --int-col-half: calc(var(--int-grid-full) + var(--int-ex) - 1);
   --int-col-full: calc(var(--int-col-half) * 2);
+
+  /* Dimensioned as <px> */
 
   --grid-row-half: calc(1px * var(--int-grid-half));
   --grid-row-full: calc(1px * var(--int-grid-full));
@@ -239,7 +271,8 @@ body > div.app-container.app-container {
   --grid-col-full: calc(1px * var(--int-col-full));
 }
 
-/* Update everything based on that grid. */
+/** Overrides based on grid properties -------------------------------------------------------- **/
+/* The goal is eliminating the use of typo variables by merging them into Obsidian properties.   */
 
 body > div.app-container.app-container {
   
@@ -250,7 +283,7 @@ body > div.app-container.app-container {
   /* Obsidian properties */
 
   --file-margins:    4ch;
-  --file-line-width: var(--typo-line-width);
+  --file-line-width: calc((var(--typo-line-width) + 1px * var(--r-up)) * var(--int) / var(--int));
   --line-width:      var(--file-line-width);
 
   --font-text-size: var(--typo-body-em);
@@ -259,16 +292,18 @@ body > div.app-container.app-container {
   --font-smallest:  calc(var(--typo-compact-em) - 2px);
   --footnote-size:  var(--font-small);
   --table-text-size: var(--typo-body-em);
+
   --line-height-normal: var(--grid-row-full);
   --line-height-tight:  calc(var(--grid-row-full) - 2px);
+  --table-line-height: var(--line-height-normal);
 
   --p-spacing: calc(var(--text-before) * var(--text-before-size));
   --list-spacing: 0;
 
   --radius-s:  calc(var(--typo-body-ex) / 2);
   --radius-m:  var(--typo-body-ex);
-  --radius-l:  var(--typo-body-em);
-  --radius-xl: var(--grid-row-full);
+  --radius-l:  var(--font-text-size);
+  --radius-xl: var(--line-height-normal);
 
   --inline-title-font: var(--typo-title-font);
   --inline-title-size:
@@ -298,12 +333,10 @@ body > div.app-container.app-container {
   --heading-spacing: 0;
 
   --list-indent: calc(var(--grid-col-half) - var(--list-indent-item));
-  --list-indent-half: calc(
-    (var(--list-indent) / 2 + 1px * var(--r-down)) * var(--int) / var(--int)
-  );
 }
 
-/* Continue carrying forward updates. */
+/** Final body properties --------------------------------------------------------------------- **/
+/* todo: make this more about layout and the previous section more about applying the new grid.  */
 
 body > div.app-container.app-container {
   
@@ -333,6 +366,10 @@ body > div.app-container.app-container {
     - var(--typo-table-header-padding-top)
   );
 
+  --list-indent-half: calc(
+    (var(--list-indent) / 2 + 1px * var(--r-down)) * var(--int) / var(--int)
+  );
+
   /* Obsidian properties */
 
   --h1-size: calc(var(--typo-h1-em) * var(--int) / var(--int));
@@ -343,24 +380,14 @@ body > div.app-container.app-container {
   --h6-size: calc(var(--typo-h6-em) * var(--int) / var(--int));
 }
 
-/* We want to extinguish all the --typo variables by this point. Use the common properties. */
-
-.markdown-reading-view {
+/* .markdown-reading-view {
   --font-text-size: var(--typo-body-em);
   --line-height-normal: var(--grid-row-full);
   --table-line-height: var(--line-height-normal);
-}
+} */
 
-/** Longform variables ------------------------------------------------------------------------ **/
-
-.longform.markdown-preview-view.markdown-rendered {
-  --text-indent: var(--monotony-p-indent);
-  --text-before: var(--monotony-p-before);
-  --text-indent-first: var(--monotony-p-indent-first);
-  --text-before-first: var(--monotony-p-before-first);
-}
-
-/** Document styles -------------------------------------------------------------------------- **/
+/** ------------------------------------------------------------------------------------------- **/
+/** Document styles --------------------------------------------------------------------------- **/
 
 /* Since our documents are dimensioned based on the body font, we set and then unset it. */
 /* This gets into the UI styles, but what can you do. Otherwise, we get weird overlaps.  */
@@ -373,7 +400,7 @@ body > div.app-container.app-container {
   font-family: var(--typo-body-font);
   font-size: var(--typo-body-em);
   min-width: calc(
-    (2 * var(--file-margins) + var(--typo-line-min-width) + 1px) * var(--int) /
+    (2 * var(--file-margins) + var(--typo-line-min-width) + 1px * var(--r-up)) * var(--int) /
       var(--int)
   );
   width: unset !important;
@@ -384,7 +411,7 @@ body > div.app-container.app-container {
   }
 }
 
-/* This in turn breaks the sidebars, which we fix. */
+/* This in turn breaks the sidebars, which we "fix". I don't know what I'm doing here. */
 
 .workspace-split.mod-horizontal.mod-left-split {
   max-width: min(
@@ -400,7 +427,7 @@ body > div.app-container.app-container {
 /* Finally, we can style our actual notes again. */
 
 .markdown-preview-sizer.markdown-preview-sizer.markdown-preview-sizer {
-  max-width: var(--typo-line-width);
+  max-width: var(--file-line-width);
   min-width: var(--typo-line-min-width);
   margin-left: auto;
   margin-right: auto;
@@ -412,9 +439,32 @@ body > div.app-container.app-container {
   padding-bottom: 0 !important;
 }
 
-/** Display element styles ------------------------------------------------------------------- **/
+/** ------------------------------------------------------------------------------------------- **/
+/** Theme variables --------------------------------------------------------------------------- **/
 
-/** Note titles. */
+/* Many themes have specific CSS that we'd like to be less specific. Override them around here.  */
+
+/** ------------------------------------------------------------------------------------------- **/
+/** CssClasses variables ---------------------------------------------------------------------- **/
+
+/* Note-level CSS classes likewise can benefit from a few quick fixes using grid properties.     */
+
+/** Longform ---------------------------------------------------------------------------------- **/
+
+.longform.markdown-preview-view.markdown-rendered {
+  --text-indent: var(--monotony-p-indent);
+  --text-before: var(--monotony-p-before);
+  --text-indent-first: var(--monotony-p-indent-first);
+  --text-before-first: var(--monotony-p-before-first);
+}
+
+/** Shortform --------------------------------------------------------------------------------- **/
+
+
+/** ------------------------------------------------------------------------------------------- **/
+/** Display element styles -------------------------------------------------------------------- **/
+
+/** Titles ------------------------------------------------------------------------------------ **/
 
 .markdown-rendered .inline-title {
   letter-spacing: 0.5px;
@@ -451,7 +501,7 @@ body > div.app-container.app-container {
   }
 }
 
-/** Headings. */
+/** Headings ---------------------------------------------------------------------------------- **/
 
 .markdown-rendered {
   & :has(> h1) {
@@ -549,7 +599,7 @@ body > div.app-container.app-container {
   }
 }
 
-/** Adjacency: Displays with displays **/
+/** Adjacency selectors: displays + displays -------------------------------------------------- **/
 
 /** Consecutive headings. */
 
@@ -575,15 +625,23 @@ body > div.app-container.app-container {
   padding-bottom: calc(var(--typo-h-padded) * var(--sb-adjacent));
 }
 
-/** Adjacency: Displays with content **/
+/** Adjacency selectors: displays + contents -------------------------------------------------- **/
 
-/* Following a title */
+/** Following a title. */
 
 .mod-header+div:has(>.frontmatter)+div>p {
-  margin-top: calc(var(--text-before-first) * var(--text-before-size) + var(--grid-row-full));
+  margin-block-start: calc(var(--text-before-first) * var(--text-before-size) + var(--grid-row-full));
+  text-indent:        calc(var(--text-indent-first) * var(--text-indent-size));
 }
 
-/* Following a header */
+/** Following a heading. */
+
+/* p */
+
+.markdown-rendered div:has(> :only-child:is(h1, h2, h3, h4, h5, h6)) + div > p {
+  margin-block-start: calc(var(--text-before-size) * var(--text-before-first));
+  text-indent:        calc(var(--text-indent-size) * var(--text-indent-first));
+}
 
 /* .subtitle */
 
@@ -592,7 +650,7 @@ body > div.app-container.app-container {
   --sb: 0px;
 }
 
-/* And we have to recompute everything about the heading. So: */
+/* We have to recompute everything about the heading. */
 .markdown-rendered :has(> h1) + div > p.subtitle {
   --h-size: var(--h1-size);
   --h-rows: var(--typo-h1-rows);
@@ -670,46 +728,43 @@ body > div.app-container.app-container {
     margin-top: var(--sub-top);
     margin-bottom: var(--sub-bot);
 
-    /* The next p after a heading + subtitle needs to act like the first para, again. */
+    /* The next p after a subtitle needs to act like the first p: */
     & + div > p:not(.subtitle) {
-      margin: calc(var(--text-before-size) * var(--text-before-first)) 0;
-      text-indent: calc(var(--text-indent-size) * var(--text-indent-first));
+      margin-block-start: calc(var(--text-before-first) * var(--text-before-size));
+      text-indent:        calc(var(--text-indent-first) * var(--text-indent-size));
     }
   }
 }
 
 /* Collection elements */
 
-.markdown-rendered
-  div:has(> :is(h1, h2, h3, h4, h5, h6))
-  + div
-  > :is(table, blockquote, ol, ul, dl) {
-  margin-top: var(--text-before-first);
+.markdown-rendered div:has(> :is(h1, h2, h3, h4, h5, h6))
+  + div > :is(table, blockquote, ol, ul, dl) {
+  margin-block-start: calc(var(--text-before-first) * var(--text-before-size));
 }
 
-/* Preceding a header */
-
-
+/** ------------------------------------------------------------------------------------------- **/
 /** Body text styles -------------------------------------------------------------------------- **/
 
-/** Regular typographic elements **/
+/** Regular typographic styles ---------------------------------------------------------------- **/
 
-/* Everything else is set in app.css via custom properties. */
-.markdown-rendered
-  div:has(> :is(h1, h2, h3, h4, h5, h6, hr, br, table))
-  + div
-  > p:is(p) {
-  margin-top: calc(var(--text-before-size) * var(--text-before-first));
-  text-indent: calc(var(--text-indent-size) * var(--text-indent-first));
+/*
+We will try not to duplicate anything already set via Obsidian properties.
+In a few cases, we will need Obsidian's selectors to have much higher (or lower) specificity.
+
+The following is already set via --p-spacing, for instance, and works fine:
+
+.markdown-rendered p {
+  margin-block: calc(var(--text-before) * var(--text-before-size));
+  margin-inline: 0;
 }
+*/
 
-/* This is usually fine. */
 .markdown-rendered p sub,
 .markdown-rendered p sup {
   line-height: 0;
 }
 
-/* Line breaks are half-row in height, for tuning the layout in smaller increments. */
 .markdown-rendered br {
   height: var(--grid-row-half);
   font-size: var(--grid-row-half);
@@ -717,51 +772,73 @@ body > div.app-container.app-container {
   width: 100%;
 }
 
+/** Adjacency selectors: content -------------------------------------------------------------- **/
+
+.markdown-rendered
+  div:has(> :only-child:is(hr, table))
+  + div > p {
+  margin-block-start: calc(var(--text-before-first) * var(--text-before-size));
+  text-indent:        calc(var(--text-indent-first) * var(--text-indent-size));
+}
+
+.markdown-rendered
+  div:has(> :only-child:is(ol, ul, dl))
+  + div > p {
+  margin-block-start: calc(var(--text-before)       * var(--text-before-size));
+  text-indent:        calc(var(--text-indent-first) * var(--text-indent-size));
+}
+
+/* p + p,
+.markdown-rendered div:has(> p) + div > p,
+.markdown-rendered div:has(> p) + :empty + div > p {
+  margin-top: calc(var(--text-before-size) * var(--text-before));
+  text-indent: calc(var(--text-indent-size) * var(--text-indent));
+} */
+
+/** ------------------------------------------------------------------------------------------- **/
 /** Larger element styles --------------------------------------------------------------------- **/
 
-/** Lists **/
+/** Lists ------------------------------------------------------------------------------------- **/
 
-.markdown-rendered {
-  /** All list types **/
-  & > div :is(ol, ul, dl) {
-    padding-block: 0;
-  }
+/** All list types **/
 
-  /** All list items **/
-  & li,
-  & dd {
-    line-height: var(--grid-row-full);
-    padding-left: calc(var(--list-indent-item) * var(--int) / var(--int));
-    font-weight: var(--typo-body-weight);
-    margin-block-end: 0;
+.markdown-rendered > div :is(ol, ul, dl) {
+  padding-block: 0;
+}
 
-    &::marker,
-    & .list-bullet::before,
-    & .list-bullet::after {
-      color: var(--text-normal);
-      background-color: var(--text-normal);
+/** All list items **/
+
+.markdown-rendered :is(li, dd) {
+  line-height: var(--line-height-normal);
+  padding-inline-start: calc(var(--list-indent-item) * var(--int) / var(--int));
+  margin-block-end: 0;
+}
+
+.markdown-rendered :is(li, dd)::marker,
+.markdown-rendered :is(li, dd) .list-bullet::before, .list-bullet::after {
+    color:            var(--list-marker-color);
+    background-color: var(--list-marker-color);
+}
+
+/** Ordered lists **/
+
+.markdown-rendered ol {
+  margin-block: var(--grid-row-half);
+
+  & > li {
+    & .list-collapse-indicator {
+      margin-inline-start: calc(-2ch - var(--list-indent));
+      padding: 0;
+    }
+
+    & > :is(ol, ul)::before {
+      left: calc(
+        -1 * var(--list-indent) + var(--list-indent-item) + var(--indentation-guide-width)
+      ) !important;
     }
   }
 
-  /** Ordered lists **/
-  & ol {
-    margin: var(--grid-row-half) 0;
-
-    & li {
-      & .list-collapse-indicator {
-        margin-left: calc(-2ch - var(--list-indent));
-        padding: 0;
-      }
-
-      & > :is(ol, ul)::before {
-        left: calc(
-          -1 * var(--list-indent) + var(--list-indent-item) + var(--indentation-guide-width)
-        ) !important;
-      }
-    }
-  }
-
-  & ol > li > ol {
+  & > li > ol {
     list-style-type: lower-alpha;
 
     & > li > ol {
@@ -776,53 +853,59 @@ body > div.app-container.app-container {
       }
     }
   }
+}
 
-  /** Unordered lists **/
-  & ul {
-    --l-pad: calc(
-      (
-          var(--list-indent-half) + var(--list-indent-item) -
-            var(--list-bullet-size) / 2 + 0.5px
-        ) * var(--int) / var(--int)
-    );
+/** Unordered lists **/
 
-    margin: var(--grid-row-half) 0;
-    padding-left: var(--l-pad);
+.markdown-rendered ul {
+  --l-pad: calc(
+    (
+      var(--list-indent-half) + var(--list-indent-item) - var(--list-bullet-size) / 2
+      + 1px * var(--r-up)
+    ) * var(--int) / var(--int)
+  );
 
-    & li {
-      /* the indent-half can be 1px different, so: */
-      padding-left: calc(var(--list-indent) - var(--list-indent-half));
+  margin-block: var(--grid-row-half);
+  padding-inline-start: var(--l-pad);
 
-      & .list-collapse-indicator {
-        margin-left: calc(-1 * var(--list-indent));
-        padding: 0;
-      }
+  & > li {
+    /* the indent-half can be 1px different, so: */
+    padding-inline-start: calc(var(--list-indent) - var(--list-indent-half));
 
-      & > :is(ol, ul)::before {
-        left: calc(
-          -1 * var(--list-indent-item) - var(--list-indent) / 2 + var(
-              --list-bullet-size
-            ) / 2 + var(--indentation-guide-width)
-        ) !important;
-      }
+    & .list-collapse-indicator {
+      margin-inline-start: calc(-1 * var(--list-indent) - var(--list-indent-item));
+      padding: 0;
+    }
+
+    & > :is(ol, ul)::before {
+      left: calc(
+        -1 * var(--list-indent-item) - var(--list-indent) / 2 + var(
+            --list-bullet-size
+          ) / 2 + var(--indentation-guide-width)
+      ) !important;
     }
   }
 
-  & ul.has-list-bullet > li > .list-bullet {
-    /* stop-using-em-for-horizontal-units challenge, difficulty level: impossible */
-    margin-left: -2ch;
+  &.has-list-bullet > li > .list-bullet {
+    margin-inline-start: calc(-2 * var(--list-indent-item));
   }
 }
 
-/** Nested lists and indentation guides **/
+/** Description lists **/
+
+/* Rarely used */
+
+/** Adjacency selectors: lists ---------------------------------------------------------------- **/
+
+/** Also padding, margins, counters, and indentation guides **/
 
 .markdown-rendered.markdown-rendered :is(ol, ul) > li > :is(ol, ul) {
   margin-block: 0;
   padding-block: 0;
 }
 
-/* Replace Obsidian's indentation guides with our own: */
-/* We're also turning this off when the ITS 'dnd' theme is on */
+/* We replace Obsidian's indentation guides with our own. */
+/* Also, we avoid replacing anything when the ITS 'dnd' theme is on. */
 
 body:not(.dnd) .markdown-rendered.show-indentation-guide li:has(> :is(ol, ul)) {
   & > :is(ol, ul)::before {
@@ -844,10 +927,25 @@ body:not(.dnd) .markdown-rendered.show-indentation-guide li:has(> :is(ol, ul)) {
   }
 }
 
-/** Elements within lists **/
+/** Elements within lists --------------------------------------------------------------------- **/
 
-/* Elements with a half-grid padding add the pad to the whole list. */
-/* The last element uses margin, instead, to keep the indentation guides the correct size. */
+/** Getting into the weeds with our first-p logic **/
+
+/* When the list item is collapsible: */
+.markdown-rendered :is(li, dd) > .list-collapse-indicator:first-child + :not(p) + p {
+  margin-block-start: calc(var(--text-before-first) * var(--text-before-size));
+  text-indent:        calc(var(--text-indent-first) * var(--text-indent-size));
+}
+
+/* When the list item is not collapsible: */
+.markdown-rendered :is(li, dd) > :not(p, .list-collapse-indicator):first-child  + p {
+  margin-block-start: calc(var(--text-before-first) * var(--text-before-size));
+  text-indent:        calc(var(--text-indent-first) * var(--text-indent-size));
+}
+
+/* Any element with block spacing adds block padding to every list item in the list. */
+/* The last element gets a block margin, instead, to size the indentation guide correctly. */
+/* This should change from a 'not' to an 'is', probably. It's just confusing this way. */
 
 .markdown-rendered
   :is(ol, ul):has(
@@ -883,21 +981,12 @@ body:not(.dnd) .markdown-rendered.show-indentation-guide li:has(> :is(ol, ul)) {
       )
   ) {
   & > li {
-    padding-bottom: var(--grid-row-half);
+    padding-block-end: var(--grid-row-half);
   }
 
   & > li:last-of-type {
-    padding-bottom: 0;
-    margin-bottom: var(--grid-row-half);
-  }
-}
-
-/* A more accurate selector than this might be too ridiculous */
-.markdown-rendered :is(ol, ul) > li > p:has(+ :is(ol, ul):not(:last-child)) {
-  margin-bottom: var(--grid-row-half);
-
-  & + :is(ol, ul) + p {
-    margin-top: var(--grid-row-half);
+    padding-block-end: 0;
+    margin-block-end: var(--grid-row-half);
   }
 }
 
@@ -925,18 +1014,10 @@ body:not(.dnd) .markdown-rendered.show-indentation-guide li:has(> :is(ol, ul)) {
 }
 
 .markdown-rendered blockquote p {
-  line-height: var(--grid-row-full);
+  line-height: var(--line-height-normal);
 }
 
-/** Adjacent elements **/
-
-p + p,
-.markdown-rendered div:has(> p) + div > p,
-.markdown-rendered div:has(> p) + :empty + div > p {
-  margin-top: calc(var(--text-before-size) * var(--text-before));
-  text-indent: calc(var(--text-indent-size) * var(--text-indent));
-}
-
+/** ------------------------------------------------------------------------------------------- **/
 /** Embed styles ------------------------------------------------------------------------------ **/
 
 .markdown-preview-section > div > *:has(> span.internal-embed) {
@@ -994,6 +1075,7 @@ p + p,
   }
 }
 
+/** ------------------------------------------------------------------------------------------- **/
 /** Footnote styles --------------------------------------------------------------------------- **/
 
 .markdown-rendered section.footnotes {
@@ -1004,7 +1086,7 @@ p + p,
 
     & > li {
       padding-left: var(--list-indent-item);
-      line-height: var(--grid-row-full);
+      line-height: var(--line-height-normal);
       margin: var(--grid-row-half) 0;
 
       &::marker {
@@ -1043,6 +1125,7 @@ p + p,
   }
 }
 
+/** ------------------------------------------------------------------------------------------- **/
 /** Callout classes --------------------------------------------------------------------------- **/
 
 .callout[data-callout="layout-columns"] {
@@ -1062,6 +1145,7 @@ p + p,
   }
 }
 
+/** ------------------------------------------------------------------------------------------- **/
 /** Element classes --------------------------------------------------------------------------- **/
 /* Not sure what else to call them. They are elements, with classes added. */
 
