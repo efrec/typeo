@@ -27,3 +27,13 @@ I chose text baselines as the rows of a grid layout. This is a common approach t
 I uploaded this to shame myself into finishing this project that's been halfway to half-done for a year, now, and plaguing my Obsidian vault in the meantime. That basically worked—this CSS is usable (enough) to transplant into other vaults. This is one of four separate typography projects I am working on, so progress here will be slow.
 
 My motivation is to remain a productive writer, so to get new vault styles I swap between Themes (instead of updating this CSS constantly). That will slow down the pace of fixes, updates, etc. on this concept. Hopefully, we get some sort of trigonometry support or even just `abs()` so I can do more fun stuff, and that will shift my focus back to doing math-y layout in pure CSS. Until then.
+
+Keep in mind also that the goal was never to make anything beautiful. I want to type out a spew of garbage in fluent Markdown and have a readable document at the end of the day. I'm not making layouts for lyrical poetry. I'm designing for sludge like this:
+
+![image](https://github.com/efrec/typeo/assets/103912894/2f94b96f-de94-479e-aa81-ae7bc426cdcc)
+
+...which _so happens_ to let you do stuff like this:
+
+![image](https://github.com/efrec/typeo/assets/103912894/b85926bc-00c7-4100-a48a-c0d1a2d5e251)
+
+...at a _relatively_ low pain threshold and without making _significant_ departures from generally-accepted Markdown (e.g. Obsidian callouts).
